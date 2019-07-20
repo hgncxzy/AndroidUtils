@@ -28,6 +28,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.xzy.utils.density.DensityUtils;
 import com.xzy.utils.screen.ScreenUtils;
 
 import java.io.ByteArrayInputStream;
@@ -601,9 +602,9 @@ public class ImageUtils {
         // 设置二维码容错率
         hst.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         // 生成二维码矩阵信息
-        BitMatrix matrix = writer.encode(content, BarcodeFormat.QR_CODE,
-                ScreenUtils.dp2px(context, dpWidth),
-                ScreenUtils.dp2px(context, dpHeight), hst);
+        BitMatrix matrix = writer.encode(content,BarcodeFormat.QR_CODE,
+                DensityUtils.dp2px(context, dpWidth),
+                DensityUtils.dp2px(context, dpHeight), hst);
         // 矩阵高度
         int width = matrix.getWidth();
         // 矩阵宽度

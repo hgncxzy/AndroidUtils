@@ -17,6 +17,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    // 设置 apache 依赖库
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -27,4 +29,6 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.zxing:core:3.4.0'
+    // 引入 apache 依赖库
+    implementation 'org.apache:apache:21'
 }
