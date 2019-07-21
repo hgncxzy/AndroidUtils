@@ -54,7 +54,8 @@ public class JSONUtils {
         }
         // 设置超时时间为5秒
         Objects.requireNonNull(conn).setConnectTimeout(5 * 1000);
-        // HttpURLConnection是通过HTTP协议请求path路径的，所以需要设置请求方式,可以不设置，因为默认为 GET
+        // HttpURLConnection是通过HTTP协议请求path路径的，所以需要设置请求方式,可以不设置，
+        // 因为默认为 GET
         try {
             conn.setRequestMethod("GET");
         } catch (ProtocolException e) {
@@ -69,7 +70,8 @@ public class JSONUtils {
                 byte[] data = readStream2Array(is);
                 // 字符数组转换成字符串
                 json = new String(data);
-                // 数据形式：[{"stuNo":100,"name":"小明"},{"stuNo":101,"name":"小张"}]数据为数组形式，
+                // 数据形式：[{"stuNo":100,"name":"小明"},{"stuNo":101,"name":"小张"}]
+                // 数据为数组形式，
                 // 直接用 android框架
                 JSONArray jsonArray = new JSONArray(json);
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -94,11 +96,12 @@ public class JSONUtils {
 
     /**
      * 获取"对象形式"的JSON数据
-     * 数据形式：{"total":2,"success":true,"appList":[{"id":1,"name":"小猪"},{"id":2,"name":"小猫"}]}
-     * 返回的数据形式是一个Object类型，所以可以直接转换成一个Object
+     * 数据形式：{"total":2,"success":true,"appList":[{"id":1,"name":"小猪"},
+     * {"id":2,"name":"小猫"}]}
+     * 返回的数据形式是一个 Object 类型，所以可以直接转换成一个 Object
      *
      * @param path 请求 url
-     * @return 返回List
+     * @return 返回 List
      */
     public static List<Map<String, String>> getJSONObject(String path) throws Exception {
         List<Map<String, String>> list = new ArrayList<>();
@@ -130,7 +133,7 @@ public class JSONUtils {
     }
 
     /**
-     * 获取类型复杂的JSON数据
+     * 获取类型复杂的 JSON 数据
      * <p>
      * 数据形式： {"name":"小猪", "age":23, "content":{"questionsTotal":2, "questions":
      * [ { "question": "what's your name?",
@@ -193,16 +196,24 @@ public class JSONUtils {
     /**
      * 把输入流转换成字符数组
      */
-    private static byte[] readStream2Array(InputStream inputStream) throws Exception {
+    private static byte[] readStream2Array(InputStream inputStream) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
+        int len = 0;
+        while (true) {
+            try {
+                if ((len = inputStream.read(buffer)) == -1) break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             bout.write(buffer, 0, len);
         }
-        bout.close();
-        inputStream.close();
+        try {
+            bout.close();
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return bout.toByteArray();
     }
 }
-

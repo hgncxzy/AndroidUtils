@@ -1,9 +1,14 @@
 package com.xzy.utils.permission;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
+
+import java.util.ArrayList;
 
 /**
  * 权限工具类。
@@ -14,8 +19,88 @@ import android.media.MediaRecorder;
 public class PermissionUtils {
 
     /**
-     * 判断是是否有录音权限.
+     * 默认构造方法
+     */
+    private PermissionUtils() {
+    }
+
+    /**
+     * 定义一个接口，处理回调结果
+     */
+    interface PermissionRequestListener {
+        /**
+         * 处理回调结果的接口方法
+         *
+         * @param reqCode 请求码
+         * @param isAllow 是否被授权(eg:如有 N 个权限，只要有其中一个权限没有被授予,那么 isAllow 为 false，否则为 true)
+         */
+        void onPermissionReqResult(int reqCode, boolean isAllow);
+    }
+
+
+    /**
+     * 处理回调结果
      *
+     * @param listener     回调结果接口方法
+     * @param reqCode      请求码
+     * @param grantResults 权限请求结果集
+     */
+    public static void solvePermissionRequest(PermissionRequestListener listener, int reqCode, int[] grantResults) {
+        if (grantResults == null) {
+            return;
+        }
+        boolean isAllow = true;
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                isAllow = false;
+                break;
+            }
+        }
+        if (listener != null) {
+            // 调用接口
+            listener.onPermissionReqResult(reqCode, isAllow);
+        }
+    }
+
+    /**
+     * @param context     上下文
+     * @param permissions 权限数组
+     * @param requestCode 请求码
+     * @return boolean 检查是否需要进行权限动态申请 true：需要动态申请，false：不需要动态申请
+     */
+    public static boolean judgePermissionOver23(Context context, String[] permissions, int requestCode) {
+        try {
+            if (permissions == null || permissions.length == 0) {
+                return true;
+            }
+            if (Build.VERSION.SDK_INT >= 23) {
+                ArrayList<String> checkResult = new ArrayList<>();
+                for (String permission : permissions) {
+                    if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                        checkResult.add(permission);
+                    }
+                }
+                if (checkResult.size() == 0) {
+                    return true;
+                }
+                int i = 0;
+                String[] reqPermissions = new String[checkResult.size()];
+                for (String string : checkResult) {
+                    reqPermissions[i] = string;
+                    i++;
+                }
+                ((Activity) context).requestPermissions(reqPermissions, requestCode);
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    /**
+     * 判断是是否有录音权限.
+     * <p>
      * steps:
      * 检测是否有权限--有--执行相关操作
      * --无权限--
@@ -32,8 +117,9 @@ public class PermissionUtils {
      * test:
      * test1 build.gradle minsdk <23    真机android7.1 清单文件中配置了录音权限
      * test2 build.gradle minsdk >=23    真机android7.1 清单文件中配置了录音权限
+     *
      * @param context Context
-     * @return boolean
+     * @return boolean 有录音权限返回 true ，没有录音权限返回 false
      */
     public static boolean checkAudioPermission(Context context) {
 
