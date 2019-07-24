@@ -1,6 +1,8 @@
 package com.xzy.utils.md5;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * md5 工具类。
@@ -34,5 +36,30 @@ public class MD5Utils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * MD5加密
+     *
+     * @param content 需要加密的字符串
+     * @return String 加密后的字符串
+     */
+    public static String md5(String content) {
+        byte[] hash;
+        try {
+            hash = MessageDigest.getInstance("MD5").digest(content
+                    .getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("NoSuchAlgorithmException", e);
+        }
+
+        StringBuilder hex = new StringBuilder(hash.length * 2);
+        for (byte b : hash) {
+            if ((b & 0xFF) < 0x10) {
+                hex.append("0");
+            }
+            hex.append(Integer.toHexString(b & 0xFF));
+        }
+        return hex.toString();
     }
 }

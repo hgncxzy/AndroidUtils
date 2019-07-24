@@ -20,7 +20,7 @@ android {
     }
     // 设置 apache 依赖库
     useLibrary 'org.apache.http.legacy'
-   // ShareSDK
+    // ShareSDK 需要的配置
     MobSDK {
         appKey "d580ad56b4b5"
         appSecret "7fcae59a62342e7e2759e9e397c82bdd"
@@ -63,4 +63,9 @@ dependencies {
     implementation 'com.google.zxing:core:3.4.0'
     // 引入 apache 依赖库
     implementation 'org.apache:apache:21'
+    // SnackBarUtils 工具类需要的依赖
+    implementation 'com.google.android.material:material:1.0.0'
+    // CloneUtils 工具类需要的依赖
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
 }

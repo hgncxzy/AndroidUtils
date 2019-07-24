@@ -1,7 +1,11 @@
 package com.xzy.utils.density;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.WindowManager;
+
+import java.util.Objects;
 
 /**
  * 常用单位转换的辅助类。
@@ -12,6 +16,65 @@ public class DensityUtils {
     private DensityUtils() {
         /* cannot be instantiated */
         throw new UnsupportedOperationException("cannot be instantiated");
+    }
+
+
+    /**
+     * @param context 上下文
+     * @return DisplayMetrics对象
+     */
+    public static DisplayMetrics getDisplayMetrics(Context context) {
+        WindowManager windowManager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics metrics = new DisplayMetrics();
+        Objects.requireNonNull(windowManager).getDefaultDisplay().getMetrics(metrics);
+        return metrics;
+    }
+
+    /**
+     * 获取屏幕分辨率-宽
+     *
+     * @param context 上下文
+     * @return 宽
+     */
+    public static int getScreenWidth(Context context) {
+        DisplayMetrics metrics = getDisplayMetrics(context);
+        return metrics.widthPixels;
+    }
+
+    /**
+     * 获取屏幕分辨率-高
+     *
+     * @param context 上下文
+     * @return 高
+     */
+    public static int getScreenHeight(Context context) {
+        DisplayMetrics metrics = getDisplayMetrics(context);
+        return metrics.heightPixels;
+    }
+
+    /**
+     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     *
+     * @param context 上下文
+     * @param dpValue 值
+     * @return 转换结果
+     */
+    public static int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    /**
+     * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
+     *
+     * @param context 上下文
+     * @param pxValue 值
+     * @return 转换结果
+     */
+    public static int px2dip(Context context, float pxValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (pxValue / scale + 0.5f);
     }
 
     /**

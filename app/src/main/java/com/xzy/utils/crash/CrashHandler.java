@@ -1,4 +1,4 @@
-package com.xzy.utils.exception;
+package com.xzy.utils.crash;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
