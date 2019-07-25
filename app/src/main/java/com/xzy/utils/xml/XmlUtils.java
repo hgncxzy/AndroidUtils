@@ -16,7 +16,6 @@ import java.util.Map;
 
 /**
  * xml 解析工具。
- * 参考  https://www.cnblogs.com/arrrrrya/p/7780104.html
  *
  * @author xzy
  */
@@ -25,7 +24,7 @@ import java.util.Map;
 public class XmlUtils {
 
     /**
-     * 解析 assert 目录下面的 xml 文件。(该方法的测试文件为 test.xml)
+     * 解析 assert 目录下面的 xml 文件。(该方法的测试文件为 assert/test.xml)
      *
      * @param context  上下文
      * @param fileName xml 的文件名
