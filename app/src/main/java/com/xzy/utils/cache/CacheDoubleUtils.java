@@ -6,6 +6,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.xzy.utils.constants.CacheConstants;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 

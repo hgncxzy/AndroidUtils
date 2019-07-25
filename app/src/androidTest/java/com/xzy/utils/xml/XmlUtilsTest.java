@@ -1,37 +1,30 @@
-package com.xzy.utils;
+package com.xzy.utils.xml;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
-import android.os.Bundle;
-
-import com.xzy.utils.toast.T;
-import com.xzy.utils.xml.XmlUtils;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+@RunWith(AndroidJUnit4.class)
+public class XmlUtilsTest {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        test();
-    }
-
-    private void test() {
+    @Test
+    public void dom2Map() {
         Document doc = null;
         try {
             FileInputStream fis = new FileInputStream
-                    ("C:\\xzy_git_projects\\utils\\app\\src\\main\\java\\com\\xzy\\utils\\xml\\test.xml");
+                    ("C:\\xzy_git_projects\\utils\\app\\src\\main\\java\\com\\xzy\\utils\\xml");
             byte[] b = new byte[fis.available()];
             fis.read(b);
             String str = new String(b);
@@ -42,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Map<String, Object> map = XmlUtils.Dom2Map(doc);
-        T.showShort(this, (String) map.get("name"));
+        Assert.assertEquals(map.get("name"), "xzy");
     }
+
 }

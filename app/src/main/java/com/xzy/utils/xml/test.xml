@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<request>
+    <realName>test</realName>
+    <identityNumber>411525152242417185276</identityNumber>
+    <phone>1314456788</phone>
+    <user>
+        <value>1444444</value>
+        <name>xzy</name>
+            <aa>
+                <hehe>222222</hehe>
+            </aa>
+        <age>23</age>
+    </user>
+</request>

@@ -3,6 +3,8 @@ package com.xzy.utils.cache;
 import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
 
+import com.xzy.utils.constants.CacheConstants;
+
 import java.util.HashMap;
 import java.util.Map;
 
