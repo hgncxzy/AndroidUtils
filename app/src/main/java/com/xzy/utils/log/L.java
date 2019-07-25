@@ -98,7 +98,7 @@ public class L {
                 }
             } catch (Exception ignored) {
             }
-            Log.i(getTAG(), className.replace(".java", "") + " -> " + info);
+            Log.i(tag, className.replace(".java", "") + " -> " + info);
         }
         onLog2File(info, className);
     }
@@ -112,7 +112,7 @@ public class L {
                 }
             } catch (Exception ignored) {
             }
-            Log.d(getTAG(), className.replace(".java", "") + " -> " + info);
+            Log.d(tag, className.replace(".java", "") + " -> " + info);
         }
         onLog2File(info, className);
     }
@@ -126,7 +126,7 @@ public class L {
                 }
             } catch (Exception ignored) {
             }
-            Log.e(getTAG(), className.replace(".java", "") + " -> " + info);
+            Log.e(tag, className.replace(".java", "") + " -> " + info);
         }
         onLog2File(info, className);
     }
@@ -140,7 +140,7 @@ public class L {
                 }
             } catch (Exception ignored) {
             }
-            Log.i(getTAG(), className.replace(".java", "") + " -> ");
+            Log.i(tag, className.replace(".java", "") + " -> ");
             Log.w(getTAG(), ex);
         }
         onLog2File(ex.getMessage(), className);

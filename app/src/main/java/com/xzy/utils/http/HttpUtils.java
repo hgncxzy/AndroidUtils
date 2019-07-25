@@ -27,7 +27,7 @@ public class HttpUtils {
     /**
      * 回调接口。
      */
-    interface HttpCallBackListener {
+    public interface HttpCallBackListener {
 
         /**
          * 回调成功。

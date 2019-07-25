@@ -69,6 +69,4 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     // ImageUtils 工具类需要的依赖
     implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
-    // XmlUtils 工具类需要的依赖
-    implementation 'org.dom4j:dom4j:2.1.1'
 }
