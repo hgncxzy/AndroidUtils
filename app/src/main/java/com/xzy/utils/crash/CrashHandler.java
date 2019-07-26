@@ -7,8 +7,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
+import android.util.Log;
 
-import com.xzy.utils.log.L;
 import com.xzy.utils.toast.T;
 
 import java.io.BufferedReader;
@@ -110,7 +110,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
-                L.e(TAG, "uncaughtException() InterruptedException:" + e);
+                Log.e(TAG, "uncaughtException() InterruptedException:" + e);
             }
             // 退出程序
             android.os.Process.killProcess(android.os.Process.myPid());
@@ -162,7 +162,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
                 map.put("versionCode", versionCode);
             }
         } catch (PackageManager.NameNotFoundException e) {
-            L.e(TAG, "collectDeviceInfo() an error occured when collect " +
+            Log.e(TAG, "collectDeviceInfo() an error occured when collect " +
                     "package info NameNotFoundException:" + e.getMessage());
         }
         Field[] fields = Build.class.getDeclaredFields();
@@ -170,9 +170,9 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             try {
                 field.setAccessible(true);
                 map.put(field.getName(), field.get(null).toString());
-                L.d(TAG, field.getName() + " : " + field.get(null));
+                Log.d(TAG, field.getName() + " : " + field.get(null));
             } catch (Exception e) {
-                L.e(TAG, "collectDeviceInfo() an error occured when " +
+                Log.e(TAG, "collectDeviceInfo() an error occured when " +
                         "collect crash info Exception:" +
                         e.getMessage());
             }
@@ -222,7 +222,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             }
             return fileName;
         } catch (Exception e) {
-            L.e(TAG, "saveCatchInfo2File() an error occured " +
+            Log.e(TAG, "saveCatchInfo2File() an error occured " +
                     "while writing file... Exception:" + e.getMessage());
         }
         return null;
@@ -236,7 +236,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     private void sendCrashLog2PM(String fileName) {
         if (!new File(fileName).exists()) {
-            L.e(TAG, "sendCrashLog2PM() 日志文件不存在");
+            Log.e(TAG, "sendCrashLog2PM() 日志文件不存在");
             return;
         }
         FileInputStream fis = null;
@@ -250,7 +250,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
                 if (s == null)
                     break;
                 // 由于目前尚未确定以何种方式发送，所以先打出log日志。
-                L.e(TAG, s);
+                Log.e(TAG, s);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

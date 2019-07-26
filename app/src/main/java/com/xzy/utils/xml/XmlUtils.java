@@ -2,9 +2,8 @@ package com.xzy.utils.xml;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Xml;
-
-import com.xzy.utils.log.L;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -53,31 +52,31 @@ public class XmlUtils {
                                 if ("realName".equals(parserName)) {
                                     String realName = xmlParser.nextText();
                                     map.put("realName", realName);
-                                    L.d(parserName, (String) map.get("realName"));
+                                    Log.d(parserName, (String) map.get("realName"));
                                 } else if ("identityNumber".equals(parserName)) {
                                     String identityNumber = xmlParser.nextText();
                                     map.put("identityNumber", identityNumber);
-                                    L.d(parserName, (String) map.get("identityNumber"));
+                                    Log.d(parserName, (String) map.get("identityNumber"));
                                 } else if ("phone".equals(parserName)) {
                                     String phone = xmlParser.nextText();
                                     map.put("phone", phone);
-                                    L.d(parserName, (String) map.get("phone"));
+                                    Log.d(parserName, (String) map.get("phone"));
                                 } else if ("value".equals(parserName)) {
                                     String value = xmlParser.nextText();
                                     map.put("value" + index, value);
-                                    L.d(parserName, (String) map.get("value" + index));
+                                    Log.d(parserName, (String) map.get("value" + index));
                                 } else if ("name".equals(parserName)) {
                                     String name = xmlParser.nextText();
                                     map.put("name" + index, name);
-                                    L.d(parserName, (String) map.get("name" + index));
+                                    Log.d(parserName, (String) map.get("name" + index));
                                 } else if ("hehe".equals(parserName)) {
                                     String hehe = xmlParser.nextText();
                                     map.put("hehe" + index, hehe);
-                                    L.d(parserName, (String) map.get("hehe" + index));
+                                    Log.d(parserName, (String) map.get("hehe" + index));
                                 } else if ("age".equals(parserName)) {
                                     String age = xmlParser.nextText();
                                     map.put("age" + index, age);
-                                    L.d(parserName, (String) map.get("age" + index));
+                                    Log.d(parserName, (String) map.get("age" + index));
                                 }
                                 break;
                             case XmlPullParser.END_TAG:

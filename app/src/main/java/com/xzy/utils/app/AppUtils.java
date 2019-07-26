@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
 import com.xzy.utils.common.Utils;
-import com.xzy.utils.log.L;
 import com.xzy.utils.shell.ShellUtils;
 
 import java.io.DataOutputStream;
@@ -210,7 +209,7 @@ public class AppUtils {
             os.flush();
             process.waitFor();
         } catch (Exception e) {
-            L.e(e.getMessage());
+            Log.e("exception",e.getMessage());
         } finally {
             try {
                 if (os != null) {
@@ -218,7 +217,7 @@ public class AppUtils {
                 }
                 process.destroy();
             } catch (Exception e) {
-                L.e(e.getMessage());
+                Log.e("exception",e.getMessage());
             }
         }
     }

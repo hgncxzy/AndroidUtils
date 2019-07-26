@@ -2,8 +2,9 @@ package com.xzy.utils.log;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
+
+import com.xzy.utils.path.PathUtils;
 
 import java.io.File;
 
@@ -15,6 +16,8 @@ import java.util.Date;
 
 /**
  * 日志工具类。
+ * <p>
+ * 需要初始化。
  *
  * @author xzy
  */
@@ -41,26 +44,37 @@ public class L {
     /**
      * 是否打印日志
      */
-    public static final boolean isDebug = true;
-    private static String className;
-    private static final String TAG = "xzy";
-    private static long fileSize = 0;
-    private static boolean isLog2File = false;
+    public boolean isDebug = true;
+    public String className;
+    public String TAG = "";
+    public long fileSize = 0;
+    public boolean isLog2File = false;
 
-    public static boolean isIsDebug() {
+    public boolean isIsDebug() {
         return isDebug;
     }
 
-    public static String getTAG() {
+    public String getTAG() {
         return TAG;
     }
 
-    public static boolean isIsLog2File() {
+    public L setDebug(boolean debug) {
+        mInstance.isDebug = debug;
+        return mInstance;
+    }
+
+    public L setTAG(String TAG) {
+        mInstance.TAG = TAG;
+        return mInstance;
+    }
+
+    public boolean isIsLog2File() {
         return isLog2File;
     }
 
-    public static void setIsLog2File(boolean isLog2File) {
-        L.isLog2File = isLog2File;
+    public L setLog2File(boolean isLog2File) {
+        mInstance.isLog2File = isLog2File;
+        return mInstance;
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -73,23 +87,23 @@ public class L {
             new SimpleDateFormat("yyyy-MM-dd");
 
     // 下面四个是默认 tag 的函数
-    public static void i(String msg) {
+    public void i(String msg) {
         if (isIsDebug()) i(getTAG(), msg);
     }
 
-    public static void d(String msg) {
+    public void d(String msg) {
         if (isIsDebug()) d(getTAG(), msg);
     }
 
-    public static void e(String msg) {
+    public void e(String msg) {
         if (isIsDebug()) e(getTAG(), msg);
     }
 
-    public static void w(Throwable ex) {
+    public void w(Throwable ex) {
         if (isIsDebug()) w(getTAG(), ex);
     }
 
-    public static void i(String tag, String info) {
+    public void i(String tag, String info) {
         if (isIsDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
@@ -103,7 +117,7 @@ public class L {
         onLog2File(info, className);
     }
 
-    public static void d(String tag, String info) {
+    public void d(String tag, String info) {
         if (isIsDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
@@ -117,7 +131,7 @@ public class L {
         onLog2File(info, className);
     }
 
-    public static void e(String tag, String info) {
+    public void e(String tag, String info) {
         if (isIsDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
@@ -131,7 +145,7 @@ public class L {
         onLog2File(info, className);
     }
 
-    public static void w(String tag, Throwable ex) {
+    public void w(String tag, Throwable ex) {
         if (isIsDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
@@ -146,11 +160,11 @@ public class L {
         onLog2File(ex.getMessage(), className);
     }
 
-    private static File getFilePath(Context context) {
-        return context.getExternalFilesDir(Environment.DIRECTORY_PODCASTS);
+    private String getFilePath(Context context) {
+        return PathUtils.getExternalAppFilesPath();
     }
 
-    private static synchronized void SwitchFile() {
+    private synchronized void SwitchFile() {
         if (fileSize > 1024 * 1024) {
             for (int i = 5; i > 0; i--) {
                 File file = new File(getFilePath(mContext)
@@ -177,7 +191,7 @@ public class L {
      * @param text 需要写入的日志信息
      * @param type 日志类型
      */
-    private static void onLog2File(String text, String type) {
+    private void onLog2File(String text, String type) {
         if (!isIsLog2File()) {
             return;
         }
@@ -190,7 +204,7 @@ public class L {
                 + getTAG()
                 + "    "
                 + text;
-        File temp = new File(Environment.getRootDirectory() + "/log");
+        File temp = new File(getFilePath(mContext) + "/log");
         if (!temp.exists()) {
             temp.mkdirs();
         }

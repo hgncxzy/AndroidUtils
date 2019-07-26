@@ -2,10 +2,7 @@ package com.xzy.utils.system;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
-
-
-import com.xzy.utils.log.L;
-
+import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,7 +14,7 @@ import java.util.Properties;
  *
  * @author xzy
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
 public class SystemUtils {
     private static final String SYS_EMUI = "sys_emui";
     private static final String SYS_MIUI = "sys_miui";
@@ -67,7 +64,7 @@ public class SystemUtils {
             Method get = clz.getMethod("get", String.class, String.class);
             return (String) get.invoke(clz, "ro.build.display.id", "otherSystem");
         } catch (Exception e) {
-            L.e(e.getMessage());
+            Log.e("",e.getMessage());
         }
         return "otherSystem";
     }

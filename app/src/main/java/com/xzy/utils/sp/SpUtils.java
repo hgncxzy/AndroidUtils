@@ -2,8 +2,7 @@ package com.xzy.utils.sp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import com.xzy.utils.log.L;
+import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,7 +11,7 @@ import java.util.Map;
 /**
  * sp 工具类。
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
 public class SpUtils {
 
     /**
@@ -144,7 +143,7 @@ public class SpUtils {
                 Class clz = SharedPreferences.Editor.class;
                 return clz.getMethod("apply");
             } catch (NoSuchMethodException e) {
-                L.e(e.getMessage());
+                Log.e("exception", e.getMessage());
             }
             return null;
         }
@@ -161,11 +160,11 @@ public class SpUtils {
                     return;
                 }
             } catch (IllegalArgumentException e) {
-                L.e(e.getMessage());
+                Log.e("exception", e.getMessage());
             } catch (IllegalAccessException e) {
-                L.e(e.getMessage());
+                Log.e("exception", e.getMessage());
             } catch (InvocationTargetException e) {
-                L.e(e.getMessage());
+                Log.e("exception", e.getMessage());
             }
             editor.commit();
         }

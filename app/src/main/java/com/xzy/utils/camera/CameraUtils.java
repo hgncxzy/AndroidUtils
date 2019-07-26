@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 
 
 import com.xzy.utils.log.L;
@@ -124,7 +125,7 @@ public class CameraUtils {
             File mediaFile = new File(mediaStorageDir + File.separator + imageFileName + suffix);
             return mediaFile;
         } else {
-            L.e("SD卡没有被挂载");
+            Log.e("","SD卡没有被挂载");
         }
         return null;
     }
