@@ -145,6 +145,7 @@ public class SystemUtils {
     public static String getSysVersionInfo() {
         String sysVersionInfo = "SERIAL: " + Build.SERIAL + "\n" +
                 "品牌: " + Build.BRAND + "\n" +
+                "型号: " + Build.MODEL + "\n" +
                 "SDK:  " + Build.VERSION.SDK + "\n" +
                 "分辨率: " + ScreenUtils.getScreenWidth() + "*" +
                 ScreenUtils.getScreenHeight() + "\n" +
