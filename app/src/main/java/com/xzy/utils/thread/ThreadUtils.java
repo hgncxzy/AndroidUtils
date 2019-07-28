@@ -8,12 +8,12 @@ import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,20 +34,19 @@ import java.util.concurrent.atomic.AtomicLong;
 @SuppressWarnings("unused")
 public final class ThreadUtils {
 
+    @SuppressLint("UseSparseArrays")
     private static final Map<Integer, Map<Integer, ExecutorService>> TYPE_PRIORITY_POOLS
-            = new ConcurrentHashMap<>();
+            = new HashMap<>();
 
-    private static final Map<Task, TimerTask> TASK_TIMERTASK_MAP = new ConcurrentHashMap<>();
+    private static final Map<Task, TaskInfo> TASK_TASKINFO_MAP = new ConcurrentHashMap<>();
 
-    private static final Map<ExecutorService, List<Task>> POOL_TASK_MAP = new ConcurrentHashMap<>();
-
-    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-    private static final Timer TIMER = new Timer();
+    private static final int   CPU_COUNT = Runtime.getRuntime().availableProcessors();
+    private static final Timer TIMER     = new Timer();
 
     private static final byte TYPE_SINGLE = -1;
     private static final byte TYPE_CACHED = -2;
-    private static final byte TYPE_IO = -4;
-    private static final byte TYPE_CPU = -8;
+    private static final byte TYPE_IO     = -4;
+    private static final byte TYPE_CPU    = -8;
 
     private static Executor sDeliver;
 
@@ -883,8 +882,11 @@ public final class ThreadUtils {
      */
     public static void cancel(ExecutorService executorService) {
         if (executorService instanceof ThreadPoolExecutor4Util) {
-            List<Task> tasks = POOL_TASK_MAP.get(executorService);
-            cancel(tasks);
+            for (Map.Entry<Task, TaskInfo> taskTaskInfoEntry : TASK_TASKINFO_MAP.entrySet()) {
+                if (taskTaskInfoEntry.getValue().mService == executorService) {
+                    cancel(taskTaskInfoEntry.getKey());
+                }
+            }
         } else {
             Log.e("LogUtils", "The executorService is not ThreadUtils's pool.");
         }
@@ -906,11 +908,10 @@ public final class ThreadUtils {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                execute(pool, task);
+                execute(pool, task, this);
             }
         };
         TIMER.schedule(timerTask, unit.toMillis(delay));
-        TASK_TIMERTASK_MAP.put(task, timerTask);
     }
 
     private static <T> void executeAtFixedRate(final ExecutorService pool,
@@ -922,47 +923,44 @@ public final class ThreadUtils {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                execute(pool, task);
+                execute(pool, task, this);
             }
         };
         TIMER.scheduleAtFixedRate(timerTask, unit.toMillis(initialDelay), unit.toMillis(period));
     }
 
     private static <T> void execute(final ExecutorService pool, final Task<T> task) {
-        pool.execute(task);
-        recordTask(pool, task);
+        execute(pool, task, null);
     }
 
-    private static <T> void recordTask(ExecutorService pool, Task<T> task) {
-        List<Task> tasks = POOL_TASK_MAP.get(pool);
-        if (tasks == null) {
-            tasks = new CopyOnWriteArrayList<>();
-            POOL_TASK_MAP.put(pool, tasks);
-        }
-        tasks.add(task);
+    private static <T> void execute(final ExecutorService pool, final Task<T> task,
+                                    final TimerTask timerTask) {
+        pool.execute(task);
+        TASK_TASKINFO_MAP.put(task, new TaskInfo(timerTask, pool));
     }
 
     private static ExecutorService getPoolByTypeAndPriority(final int type) {
         return getPoolByTypeAndPriority(type, Thread.NORM_PRIORITY);
     }
 
-    @SuppressLint("UseSparseArrays")
-    private synchronized static ExecutorService getPoolByTypeAndPriority(final int type, final int priority) {
-        ExecutorService pool;
-        Map<Integer, ExecutorService> priorityPools = TYPE_PRIORITY_POOLS.get(type);
-        if (priorityPools == null) {
-            priorityPools = new ConcurrentHashMap<>();
-            pool = ThreadPoolExecutor4Util.createPool(type, priority);
-            priorityPools.put(priority, pool);
-            TYPE_PRIORITY_POOLS.put(type, priorityPools);
-        } else {
-            pool = priorityPools.get(priority);
-            if (pool == null) {
+    private static ExecutorService getPoolByTypeAndPriority(final int type, final int priority) {
+        synchronized (TYPE_PRIORITY_POOLS) {
+            ExecutorService pool;
+            Map<Integer, ExecutorService> priorityPools = TYPE_PRIORITY_POOLS.get(type);
+            if (priorityPools == null) {
+                priorityPools = new ConcurrentHashMap<>();
                 pool = ThreadPoolExecutor4Util.createPool(type, priority);
                 priorityPools.put(priority, pool);
+                TYPE_PRIORITY_POOLS.put(type, priorityPools);
+            } else {
+                pool = priorityPools.get(priority);
+                if (pool == null) {
+                    pool = ThreadPoolExecutor4Util.createPool(type, priority);
+                    priorityPools.put(priority, pool);
+                }
             }
+            return pool;
         }
-        return pool;
     }
 
     static final class ThreadPoolExecutor4Util extends ThreadPoolExecutor {
@@ -988,9 +986,9 @@ public final class ThreadUtils {
                             new UtilsThreadFactory("io", priority)
                     );
                 case TYPE_CPU:
-                    return new ThreadPoolExecutor4Util(CPU_COUNT + 1, CPU_COUNT + 1,
+                    return new ThreadPoolExecutor4Util(CPU_COUNT + 1, 2 * CPU_COUNT + 1,
                             30, TimeUnit.SECONDS,
-                            new LinkedBlockingQueue4Util(),
+                            new LinkedBlockingQueue4Util(true),
                             new UtilsThreadFactory("cpu", priority)
                     );
                 default:
@@ -1048,7 +1046,7 @@ public final class ThreadUtils {
 
         private volatile ThreadPoolExecutor4Util mPool;
 
-        private boolean mIsAddSubThreadFirstThenAddQueue = false;
+        private int mCapacity = Integer.MAX_VALUE;
 
         LinkedBlockingQueue4Util() {
             super();
@@ -1056,12 +1054,19 @@ public final class ThreadUtils {
 
         LinkedBlockingQueue4Util(boolean isAddSubThreadFirstThenAddQueue) {
             super();
-            mIsAddSubThreadFirstThenAddQueue = isAddSubThreadFirstThenAddQueue;
+            if (isAddSubThreadFirstThenAddQueue) {
+                mCapacity = 0;
+            }
+        }
+
+        LinkedBlockingQueue4Util(int capacity) {
+            super();
+            mCapacity = capacity;
         }
 
         @Override
         public boolean offer(@NonNull Runnable runnable) {
-            if (mIsAddSubThreadFirstThenAddQueue &&
+            if (mCapacity <= size() &&
                     mPool != null && mPool.getPoolSize() < mPool.getMaximumPoolSize()) {
                 // create a non-core thread
                 return false;
@@ -1072,11 +1077,11 @@ public final class ThreadUtils {
 
     private static final class UtilsThreadFactory extends AtomicLong
             implements ThreadFactory {
-        private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
-        private static final long serialVersionUID = -9209200509960368598L;
+        private static final AtomicInteger POOL_NUMBER      = new AtomicInteger(1);
+        private static final long          serialVersionUID = -9209200509960368598L;
         private final String namePrefix;
-        private final int priority;
-        private final boolean isDaemon;
+        private final        int           priority;
+        private final        boolean       isDaemon;
 
         UtilsThreadFactory(String prefix, int priority) {
             this(prefix, priority, false);
@@ -1130,14 +1135,14 @@ public final class ThreadUtils {
 
     public abstract static class Task<T> implements Runnable {
 
-        private static final int NEW = 0;
-        private static final int COMPLETING = 1;
-        private static final int CANCELLED = 2;
+        private static final int NEW         = 0;
+        private static final int COMPLETING  = 1;
+        private static final int CANCELLED   = 2;
         private static final int EXCEPTIONAL = 3;
 
         private static final Object LOCK = "";
 
-        private volatile int state = NEW;
+        private volatile int     state = NEW;
         private volatile boolean isSchedule;
         private volatile Thread runner;
 
@@ -1262,10 +1267,19 @@ public final class ThreadUtils {
     }
 
     private static void cancelTimerTask(final Task task) {
-        TimerTask timerTask = TASK_TIMERTASK_MAP.get(task);
+        TaskInfo timerTask = TASK_TASKINFO_MAP.get(task);
         if (timerTask != null) {
-            TASK_TIMERTASK_MAP.remove(task);
-            timerTask.cancel();
+            TASK_TASKINFO_MAP.remove(task);
+        }
+    }
+
+    private static class TaskInfo {
+        private TimerTask mTimerTask;
+        private ExecutorService mService;
+
+        private TaskInfo(TimerTask timerTask, ExecutorService service) {
+            mTimerTask = timerTask;
+            mService = service;
         }
     }
 }

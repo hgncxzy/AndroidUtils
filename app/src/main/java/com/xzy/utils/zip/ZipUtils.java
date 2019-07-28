@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-
 
 /**
  * 压缩相关的工具类。
@@ -26,7 +26,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author xzy
  */
-@SuppressWarnings("all")
+@SuppressWarnings("unused")
 public final class ZipUtils {
 
     private static final int BUFFER_LEN = 8192;
@@ -67,7 +67,8 @@ public final class ZipUtils {
         try {
             zos = new ZipOutputStream(new FileOutputStream(zipFilePath));
             for (String srcFile : srcFilePaths) {
-                if (!zipFile(getFileByPath(srcFile), "", zos, comment)) return false;
+                if (!zipFile(Objects.requireNonNull(getFileByPath(srcFile)),
+                        "", zos, comment)) return false;
             }
             return true;
         } finally {
@@ -294,7 +295,7 @@ public final class ZipUtils {
             if (isSpace(keyword)) {
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = ((ZipEntry) entries.nextElement());
-                    String entryName = entry.getName();
+                    String entryName = entry.getName().replace("\\", "/");
                     if (entryName.contains("../")) {
                         Log.e("ZipUtils", "entryName: " + entryName + " is dangerous!");
                         continue;
@@ -304,7 +305,7 @@ public final class ZipUtils {
             } else {
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = ((ZipEntry) entries.nextElement());
-                    String entryName = entry.getName();
+                    String entryName = entry.getName().replace("\\", "/");
                     if (entryName.contains("../")) {
                         Log.e("ZipUtils", "entryName: " + entryName + " is dangerous!");
                         continue;
@@ -379,7 +380,8 @@ public final class ZipUtils {
         ZipFile zip = new ZipFile(zipFile);
         Enumeration<?> entries = zip.entries();
         while (entries.hasMoreElements()) {
-            String entryName = ((ZipEntry) entries.nextElement()).getName();
+            String entryName = ((ZipEntry) entries.nextElement()).getName()
+                    .replace("\\", "/");
             if (entryName.contains("../")) {
                 Log.e("ZipUtils", "entryName: " + entryName + " is dangerous!");
                 paths.add(entryName);
