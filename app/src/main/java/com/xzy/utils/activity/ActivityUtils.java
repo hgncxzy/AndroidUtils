@@ -651,8 +651,8 @@ public class ActivityUtils {
     public static void startActivityForResult(@NonNull final Activity activity,
                                               @NonNull final Class<? extends Activity> clz,
                                               final int requestCode) {
-        startActivityForResult(activity, null, activity.getPackageName(), clz.getName(),
-                requestCode, null);
+        Intent intent = new Intent(activity,clz);
+        activity.startActivityForResult(intent,requestCode);
     }
 
     /**
@@ -668,8 +668,8 @@ public class ActivityUtils {
                                               @NonNull final Class<? extends Activity> clz,
                                               final int requestCode,
                                               @Nullable final Bundle options) {
-        startActivityForResult(activity, null, activity.getPackageName(), clz.getName(),
-                requestCode, options);
+        Intent intent = new Intent(activity,clz);
+        activity.startActivityForResult(intent,requestCode,options);
     }
 
     /**
@@ -688,6 +688,7 @@ public class ActivityUtils {
                                               final View... sharedElements) {
         startActivityForResult(activity, null, activity.getPackageName(), clz.getName(),
                 requestCode, getOptionsBundle(activity, sharedElements));
+
     }
 
     /**

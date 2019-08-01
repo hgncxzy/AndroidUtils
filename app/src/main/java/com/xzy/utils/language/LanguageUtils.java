@@ -1,4 +1,4 @@
-package com.xzy.utils.laungage;
+package com.xzy.utils.language;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

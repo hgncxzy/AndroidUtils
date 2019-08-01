@@ -4,6 +4,15 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical">
-
-
+    <GridView
+        android:id="@+id/gridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:horizontalSpacing="10dp"
+        android:fadingEdge="none"
+        android:stretchMode="columnWidth"
+        android:numColumns="4"
+        android:verticalSpacing="10dp">
+    </GridView>
 </LinearLayout>

@@ -19,7 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.core.content.FileProvider;
 
-import com.xzy.utils.laungage.LanguageUtils;
+import com.xzy.utils.language.LanguageUtils;
 
 import java.io.BufferedReader;
 import java.io.File;

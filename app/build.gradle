@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 // shareSDK
 apply plugin: 'com.mob.sdk'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
@@ -69,4 +71,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     // ImageUtils 工具类需要的依赖
     implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
