@@ -1,4 +1,4 @@
-package com.xzy.utils.demo.activity
+package com.xzy.utils.test.activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -7,7 +7,6 @@ import android.util.Log
 import com.xzy.utils.MainActivity
 import com.xzy.utils.R
 import com.xzy.utils.activity.ActivityUtils
-import com.xzy.utils.common.Utils
 import com.xzy.utils.toast.ToastUtils
 import kotlinx.android.synthetic.main.activity_utils_test.*
 
@@ -82,6 +81,18 @@ class ActivityUtilsTest : AppCompatActivity() {
                     1002,
                     R.anim.in_from_left,
                     R.anim.out_to_right)
+        }
+
+        finishActivity.setOnClickListener {
+            ActivityUtils.finishActivity(this,true)
+        }
+
+        finishActivityWithAnim.setOnClickListener {
+            ActivityUtils.finishActivity(this,R.anim.in_from_left,R.anim.in_from_right)
+        }
+
+        finishAllActivities.setOnClickListener {
+            ActivityUtils.finishAllActivities()
         }
     }
 

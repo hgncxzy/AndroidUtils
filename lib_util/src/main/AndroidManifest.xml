@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dist="http://schemas.android.com/apk/distribution"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.xzy.utils">
 
     <dist:module dist:instant="true" />
@@ -12,9 +11,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <application
-        android:allowBackup="true"
-        tools:ignore="GoogleAppIndexingWarning">
+    <application>
         <provider
             android:name=".asserts.AssertProvider"
             android:authorities="com.xzy.utils.asserts.AssertProvider"

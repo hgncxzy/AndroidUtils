@@ -2,15 +2,12 @@ package com.xzy.utils
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.SimpleAdapter
 
 import androidx.appcompat.app.AppCompatActivity
 import com.xzy.utils.activity.ActivityUtils
-import com.xzy.utils.common.Utils
-import com.xzy.utils.demo.activity.ActivityUtilsTest
-import com.xzy.utils.demo.constant.Configs
-import com.xzy.utils.toast.ToastUtils
+import com.xzy.utils.test.activity.ActivityUtilsTest
+import com.xzy.utils.test.constant.Configs
 
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList

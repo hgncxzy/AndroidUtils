@@ -1,4 +1,4 @@
-package com.xzy.utils.demo.activity
+package com.xzy.utils.test.activity
 
 import android.app.Activity
 import android.content.Intent

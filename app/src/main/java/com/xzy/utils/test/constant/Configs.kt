@@ -1,4 +1,4 @@
-package com.xzy.utils.demo.constant
+package com.xzy.utils.test.constant
 
 class Configs {
     object Number {

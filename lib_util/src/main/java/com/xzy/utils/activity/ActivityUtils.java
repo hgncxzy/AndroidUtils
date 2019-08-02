@@ -21,6 +21,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 
 import com.xzy.utils.common.Utils;
+import com.xzy.utils.log.L;
 
 import java.util.List;
 import java.util.Objects;
@@ -651,8 +652,8 @@ public class ActivityUtils {
     public static void startActivityForResult(@NonNull final Activity activity,
                                               @NonNull final Class<? extends Activity> clz,
                                               final int requestCode) {
-        Intent intent = new Intent(activity,clz);
-        activity.startActivityForResult(intent,requestCode);
+        Intent intent = new Intent(activity, clz);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -668,8 +669,8 @@ public class ActivityUtils {
                                               @NonNull final Class<? extends Activity> clz,
                                               final int requestCode,
                                               @Nullable final Bundle options) {
-        Intent intent = new Intent(activity,clz);
-        activity.startActivityForResult(intent,requestCode,options);
+        Intent intent = new Intent(activity, clz);
+        activity.startActivityForResult(intent, requestCode, options);
     }
 
     /**
