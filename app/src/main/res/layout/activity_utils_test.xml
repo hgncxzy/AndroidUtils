@@ -12,57 +12,68 @@
         android:id="@+id/getActivityByView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="getActivityByView" />
     <Button
         android:id="@+id/getActivityByContext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="getActivityByContext" />
     <Button
         android:id="@+id/isActivityExists"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="isActivityExists" />
     <Button
         android:id="@+id/startActivity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivity" />
     <Button
         android:id="@+id/startActivityWithBundle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityWithBundle" />
     <Button
         android:id="@+id/startActivityWithAnim"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityWithAnim" />
 
     <Button
         android:id="@+id/startActivityWithAnimAndBundle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityWithAnimAndBundle" />
 
     <Button
         android:id="@+id/startActivityWithPkgAndCls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityWithPkgAndCls" />
     <Button
         android:id="@+id/startActivityForResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityForResult" />
     <Button
         android:id="@+id/startActivityForResultWithBundle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityForResultWithBundle" />
     <Button
         android:id="@+id/startActivityForResultWithBundleAndAnim"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="startActivityForResultWithBundleAndAnim" />
 </LinearLayout>

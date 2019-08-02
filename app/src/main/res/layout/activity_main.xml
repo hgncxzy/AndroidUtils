@@ -12,7 +12,7 @@
         android:horizontalSpacing="10dp"
         android:fadingEdge="none"
         android:stretchMode="columnWidth"
-        android:numColumns="4"
+        android:numColumns="auto_fit"
         android:verticalSpacing="10dp">
     </GridView>
 </LinearLayout>

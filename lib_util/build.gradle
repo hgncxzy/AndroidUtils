@@ -1,5 +1,4 @@
-apply plugin: 'com.android.application'
-
+apply plugin: 'com.android.library'
 // shareSDK
 apply plugin: 'com.mob.sdk'
 apply plugin: 'kotlin-android'
@@ -8,7 +7,6 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
     defaultConfig {
-        applicationId "com.xzy.utils"
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
@@ -63,15 +61,14 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-//    implementation 'com.google.zxing:core:3.4.0'
-//    // 引入 apache 依赖库
-//    implementation 'org.apache:apache:21'
-//    // SnackBarUtils 工具类需要的依赖
-//    implementation 'com.google.android.material:material:1.0.0'
-//    // CloneUtils 工具类需要的依赖
-//    implementation 'com.google.code.gson:gson:2.8.5'
-//    // ImageUtils 工具类需要的依赖
-//    implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
+    implementation 'com.google.zxing:core:3.4.0'
+    // 引入 apache 依赖库
+    implementation 'org.apache:apache:21'
+    // SnackBarUtils 工具类需要的依赖
+    implementation 'com.google.android.material:material:1.0.0'
+    // CloneUtils 工具类需要的依赖
+    implementation 'com.google.code.gson:gson:2.8.5'
+    // ImageUtils 工具类需要的依赖
+    implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(path: ':lib_util')
 }

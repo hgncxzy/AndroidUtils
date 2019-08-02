@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
                 intArrayOf(R.id.item_tv)
         )
         gridView.adapter = simpleAdapter
-        gridView.setOnItemClickListener { adapterView, view, i, l ->
+        gridView.setOnItemClickListener { _, _, i, _ ->
             when (i) {
                 0 -> {
                     ActivityUtils.startActivity(Intent(this,
