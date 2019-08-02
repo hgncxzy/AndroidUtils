@@ -1,15 +1,19 @@
-package com.xzy.utils.test.activity
+package com.xzy.test.activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.xzy.utils.MainActivity
+import com.xzy.test.MainActivity
 import com.xzy.utils.R
 import com.xzy.utils.activity.ActivityUtils
 import com.xzy.utils.toast.ToastUtils
 import kotlinx.android.synthetic.main.activity_utils_test.*
 
+/**
+ * ActivityUtils 工具测试类。
+ * @author xzy
+ * **/
 class ActivityUtilsTest : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,11 +88,11 @@ class ActivityUtilsTest : AppCompatActivity() {
         }
 
         finishActivity.setOnClickListener {
-            ActivityUtils.finishActivity(this,true)
+            ActivityUtils.finishActivity(this, true)
         }
 
         finishActivityWithAnim.setOnClickListener {
-            ActivityUtils.finishActivity(this,R.anim.in_from_left,R.anim.in_from_right)
+            ActivityUtils.finishActivity(this, R.anim.in_from_left, R.anim.in_from_right)
         }
 
         finishAllActivities.setOnClickListener {

@@ -21,7 +21,6 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 
 import com.xzy.utils.common.Utils;
-import com.xzy.utils.log.L;
 
 import java.util.List;
 import java.util.Objects;

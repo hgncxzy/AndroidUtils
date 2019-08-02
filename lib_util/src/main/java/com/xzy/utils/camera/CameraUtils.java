@@ -10,8 +10,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 
-import com.xzy.utils.log.L;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;

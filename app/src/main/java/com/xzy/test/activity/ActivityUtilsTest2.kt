@@ -1,4 +1,4 @@
-package com.xzy.utils.test.activity
+package com.xzy.test.activity
 
 import android.app.Activity
 import android.content.Intent
@@ -7,6 +7,10 @@ import android.os.Bundle
 import com.xzy.utils.R
 import kotlinx.android.synthetic.main.activity_utils_test2.*
 
+/**
+ * ActivityUtils 工具测试类。
+ * @author xzy
+ * **/
 class ActivityUtilsTest2 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

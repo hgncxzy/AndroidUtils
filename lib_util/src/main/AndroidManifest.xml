@@ -11,9 +11,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <application>
+    <application
+        android:name="com.xzy.utils.UtilsApp">
         <provider
-            android:name=".asserts.AssertProvider"
+            android:name="com.xzy.utils.asserts.AssertProvider"
             android:authorities="com.xzy.utils.asserts.AssertProvider"
             android:exported="true"
             android:grantUriPermissions="true" />

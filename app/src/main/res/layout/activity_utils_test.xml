@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="20dp"
-    tools:context=".test.activity.ActivityUtilsTest"
+    tools:context="com.xzy.test.activity.ActivityUtilsTest"
     tools:ignore="HardcodedText">
     <LinearLayout
         android:layout_width="match_parent"

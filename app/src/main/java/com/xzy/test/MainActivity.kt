@@ -1,4 +1,4 @@
-package com.xzy.utils
+package com.xzy.test
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,8 +6,9 @@ import android.widget.SimpleAdapter
 
 import androidx.appcompat.app.AppCompatActivity
 import com.xzy.utils.activity.ActivityUtils
-import com.xzy.utils.test.activity.ActivityUtilsTest
-import com.xzy.utils.test.constant.Configs
+import com.xzy.test.activity.ActivityUtilsTest
+import com.xzy.test.constant.Configs
+import com.xzy.utils.R
 
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
