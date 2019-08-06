@@ -7,8 +7,8 @@ import android.widget.SimpleAdapter
 import androidx.appcompat.app.AppCompatActivity
 import com.xzy.utils.activity.ActivityUtils
 import com.xzy.test.activity.ActivityUtilsTest
+import com.xzy.test.app.AppUtilsActivity
 import com.xzy.test.constant.Configs
-import com.xzy.utils.R
 
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
@@ -35,8 +35,18 @@ class MainActivity : AppCompatActivity() {
         gridView.setOnItemClickListener { _, _, i, _ ->
             when (i) {
                 0 -> {
+                    // ActivityUtilsTest
                     ActivityUtils.startActivity(Intent(this,
                             ActivityUtilsTest::class.java))
+                }
+                1 -> {
+                    // AdaptScreenUtilsActivity
+
+                }
+                2 -> {
+                    // AppUtilsActivity
+                    ActivityUtils.startActivity(Intent(this,
+                            AppUtilsActivity::class.java))
                 }
 
             }

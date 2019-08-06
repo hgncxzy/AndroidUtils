@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.xzy.test.MainActivity
-import com.xzy.utils.R
+import com.xzy.test.R
 import com.xzy.utils.activity.ActivityUtils
 import com.xzy.utils.toast.ToastUtils
 import kotlinx.android.synthetic.main.activity_utils_test.*

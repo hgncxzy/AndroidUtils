@@ -10,6 +10,10 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REPLACE_EXISTING_PACKAGE"/>
+    <!-- 8.0必要权限  -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+
 
     <application
         android:name="com.xzy.utils.UtilsApp">
@@ -18,6 +22,18 @@
             android:authorities="com.xzy.utils.asserts.AssertProvider"
             android:exported="true"
             android:grantUriPermissions="true" />
-    </application>
 
+        <!-- AppUtils#installAPK 需要用到，做 Android 7.0 文件访问的兼容处理 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_path"
+                >
+            </meta-data>
+        </provider>
+    </application>
 </manifest>

@@ -1,0 +1,7 @@
+<resources>
+    <paths>
+        <root-path
+            name="root"
+            path=""/>
+    </paths>
+</resources>

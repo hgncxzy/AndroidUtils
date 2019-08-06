@@ -38,4 +38,7 @@ dependencies {
     // ImageUtils 工具类需要的依赖
     implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    // 解决 Unable to get provider android.support.v4.content.FileProvider 问题而引入，还需要
+    // 在 UtilsApp 中调用 MultiDex.install(this);
+    implementation 'com.android.support:multidex:1.0.3'
 }

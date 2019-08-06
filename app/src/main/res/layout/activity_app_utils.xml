@@ -1,9 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.xzy.test.app.AppUtilsActivity">
+    android:layout_margin="20dp"
+    tools:context="com.xzy.test.app.AppUtilsActivity"
+    tools:ignore="HardcodedText">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/openApp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="openApp"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/installAPK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="installAPK"
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/unInstallAPK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="unInstallAPK"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/unInstallAPK2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="unInstallAPK2"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/launchApp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="launchApp"
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/exitApp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="exitApp"
+            android:textAllCaps="false" />
+    </LinearLayout>
+</ScrollView>

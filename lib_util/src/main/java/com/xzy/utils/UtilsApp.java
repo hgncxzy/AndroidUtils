@@ -2,6 +2,8 @@ package com.xzy.utils;
 
 import android.app.Application;
 
+import androidx.multidex.MultiDex;
+
 import com.xzy.utils.common.Utils;
 
 public class UtilsApp extends Application {
@@ -10,7 +12,8 @@ public class UtilsApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Utils.init(this);
         INSTANCE = this;
+        Utils.init(this);
+        MultiDex.install(this);
     }
 }

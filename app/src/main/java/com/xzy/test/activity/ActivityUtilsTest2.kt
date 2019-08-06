@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.xzy.utils.R
+import com.xzy.test.R
 import kotlinx.android.synthetic.main.activity_utils_test2.*
 
 /**

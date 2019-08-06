@@ -29,7 +29,6 @@ import androidx.core.content.FileProvider;
 import com.xzy.utils.common.Utils;
 import com.xzy.utils.shell.ShellUtils;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -153,7 +152,7 @@ public class AppUtils {
      * @param uri     uri
      * @return boolean
      */
-    private boolean checkAppInstalledByUri(Context context, String uri) {
+    public static boolean checkAppInstalledByUri(Context context, String uri) {
         PackageManager pm = context.getPackageManager();
         boolean installed = false;
         try {
@@ -172,7 +171,7 @@ public class AppUtils {
      * @param packageName packageName
      * @return boolean
      */
-    public boolean checkAppInstalledByPkName(Context context, String packageName) {
+    public static boolean checkAppInstalledByPkName(Context context, String packageName) {
         final PackageManager packageManager = context.getPackageManager();
         List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);
         List<String> pName = new ArrayList<String>();
@@ -187,54 +186,42 @@ public class AppUtils {
 
 
     /**
-     * 请求 root 权限。
-     * <p>
-     * App实现静默安装
-     * http://blog.csdn.net/androidstarjack/article/details/50349999
-     * http://www.jb51.net/article/78463.htm
-     * http://blog.csdn.net/h3c4lenovo/article/details/9202323
-     *
-     * @param context context
-     */
-    public static void requestAppRootPermission(Context context) {
-        Process process = null;
-        DataOutputStream os = null;
-        try {
-            String cmd = "chmod 777 " + context.getPackageCodePath();
-            // 切换到root帐号
-            process = Runtime.getRuntime().exec("su");
-            os = new DataOutputStream(process.getOutputStream());
-            os.writeBytes(cmd + "\n");
-            os.writeBytes("exit\n");
-            os.flush();
-            process.waitFor();
-        } catch (Exception e) {
-            Log.e("exception",e.getMessage());
-        } finally {
-            try {
-                if (os != null) {
-                    os.close();
-                }
-                process.destroy();
-            } catch (Exception e) {
-                Log.e("exception",e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * 安装apk
+     * 安装 apk
+     * Android 7.0后访问文件权限：android.os.FileUriExposedException 的异常，请参考
+     * https://blog.csdn.net/acesheep_911/article/details/81708254
+     * Didn't find class "android.support.v4.content.FileProvider" on path:的问题，请参考
+     * https://blog.csdn.net/fox_wei_hlz/article/details/78732907
+     * 本库中 将 android.support.v4.content.FileProvider 替换为 ：
+     * androidx.core.content.FileProvider
      *
      * @param context 上下文
      * @param path    文件路径
      */
     public static void installAPK(Context context, String path) {
-        Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(new File(path)),
-                "application/vnd.android.package-archive");
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Uri uri;
+        if (Build.VERSION.SDK_INT < 24) { // Android 7.0 之前的系统
+            uri = Uri.fromFile(new File(path));
+        } else {// Android 7.0
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);//授予临时权限
+            uri = FileProvider.getUriForFile(context,
+                    getAppPackageName() + ".FileProvider",
+                    new File(path));
+        }
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        // 查询所有符合 intent 跳转目标应用类型的应用，注意此方法必须放置在 setDataAndType 方法之后
+        List<ResolveInfo> resolveLists = context.getPackageManager()
+                .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        // 然后全部授权
+        for (ResolveInfo resolveInfo : resolveLists) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            context.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
         context.startActivity(intent);
+
+
     }
 
     /**
@@ -244,7 +231,9 @@ public class AppUtils {
      * @param listener The status of application changed listener
      */
     public static void registerAppStatusChangedListener(@NonNull final Object obj,
-                                                        @NonNull final Utils.OnAppStatusChangedListener listener) {
+                                                        @NonNull final Utils
+                                                                .OnAppStatusChangedListener
+                                                                listener) {
         Utils.getActivityLifecycle().addOnAppStatusChangedListener(obj, listener);
     }
 
