@@ -51,5 +51,17 @@
             android:layout_height="wrap_content"
             android:text="exitApp"
             android:textAllCaps="false" />
+        <Button
+            android:id="@+id/getApkInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="getApkInfo"
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/getApkInfo2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="getApkInfo2"
+            android:textAllCaps="false" />
     </LinearLayout>
 </ScrollView>

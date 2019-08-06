@@ -14,6 +14,7 @@ import android.content.pm.PackageManager
 import androidx.annotation.RequiresApi
 import com.xzy.utils.common.Utils
 import com.xzy.utils.toast.T
+import java.io.File
 
 
 /**
@@ -32,7 +33,6 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(com.xzy.test.R.layout.activity_app_utils)
-
         // openApp
         openApp.setOnClickListener {
             AppUtils.openApp(this, AppUtils.getAppPackageName())
@@ -64,7 +64,14 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
         exitApp.setOnClickListener {
             AppUtils.exitApp()
         }
-
+        // getApkInfo
+        getApkInfo.setOnClickListener {
+            AppUtils.getApkInfo(PathUtils.getDataPath() + "/test.apk")
+        }
+        // getApkInfo2
+        getApkInfo2.setOnClickListener {
+            AppUtils.getApkInfo(File(PathUtils.getDataPath() + "/test.apk"))
+        }
 
     }
 

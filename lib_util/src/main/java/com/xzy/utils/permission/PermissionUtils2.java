@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * 权限相关的工具类。
  * 参考 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/src/main/
- * java/com/blankj/utilcode/util/PathUtils.java
+ * java/com/blankj/utilcode/util/PermissionUtils.java
  *
  * @author xzy
  */
