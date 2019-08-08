@@ -11,6 +11,7 @@ import android.os.Build
 import android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Environment
 import androidx.annotation.RequiresApi
 import com.xzy.utils.common.Utils
 import com.xzy.utils.toast.T
@@ -39,6 +40,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
         }
         // installAPK
         installAPK.setOnClickListener {
+            Per.isGrantExternalRW(this@AppUtilsActivity)
             checkIsAndroidO()
         }
 
@@ -52,7 +54,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
 
         // unInstallAPK2
         unInstallAPK2.setOnClickListener {
-            AppUtils.uninstallApp(this,"com.xzy.utils",3)
+            AppUtils.uninstallApp(this, "com.xzy.utils", 3)
         }
 
         // launchApp
@@ -70,7 +72,12 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
         }
         // getApkInfo2
         getApkInfo2.setOnClickListener {
-            AppUtils.getApkInfo(File(PathUtils.getDataPath() + "/test.apk"))
+            val path = PathUtils.getDataPath() + "/test.apk"
+            if (File(path).exists()) {
+                AppUtils.getApkInfo(File(PathUtils.getDataPath() + "/test.apk"))
+            } else {
+                T.showShort(this, "file not exist")
+            }
         }
 
     }
@@ -84,7 +91,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
             val b = packageManager.canRequestPackageInstalls()
             if (b) {
                 //安装应用的逻辑(写自己的就可以)
-                AppUtils.installAPK(this, PathUtils.getDataPath() + "/test.apk")
+                AppUtils.installAPK( this@AppUtilsActivity, Environment.getExternalStorageDirectory().absolutePath + "/test.apk")
             } else {
                 //请求安装未知应用来源的权限
                 ActivityCompat.requestPermissions(this,
@@ -92,7 +99,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
             }
         } else {
             //安装应用的逻辑(写自己的就可以)
-            AppUtils.installAPK(this, PathUtils.getDataPath() + "/test.apk")
+            AppUtils.installAPK( this@AppUtilsActivity, Environment.getExternalStorageDirectory().absolutePath + "/test.apk")
         }
 
     }
@@ -106,7 +113,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
             1 -> if (grantResults.isNotEmpty() && grantResults[0]
                     == PackageManager.PERMISSION_GRANTED) {
                 //安装应用的逻辑(写自己的就可以)
-                AppUtils.installAPK(this, PathUtils.getDataPath() + "/test.apk")
+                AppUtils.installAPK( this@AppUtilsActivity, Environment.getExternalStorageDirectory().absolutePath + "/test.apk")
             } else {
                 val intent = Intent(ACTION_MANAGE_UNKNOWN_APP_SOURCES)
                 startActivityForResult(intent, 2)
@@ -119,7 +126,9 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             2 -> checkIsAndroidO()
-            3 -> {T.showShort(this,""+resultCode)}
+            3 -> {
+                T.showShort(this, "" + resultCode)
+            }
             else -> {
             }
         }

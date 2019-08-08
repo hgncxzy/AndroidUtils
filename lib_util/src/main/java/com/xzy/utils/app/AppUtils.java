@@ -19,11 +19,13 @@ import android.content.pm.Signature;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import com.xzy.utils.common.Utils;
@@ -35,6 +37,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.Manifest.permission.REQUEST_INSTALL_PACKAGES;
+
 /**
  * App 相关的辅助类。
  * 部分来自 https://github.com/Blankj/AndroidUtilCode
@@ -43,6 +47,8 @@ import java.util.List;
  */
 @SuppressWarnings("ALL")
 public class AppUtils {
+
+    public static final int INSTALL_APP_REQ_CODE = 1001;
 
     private AppUtils() {
         /* cannot be instantiated */
@@ -186,6 +192,33 @@ public class AppUtils {
 
 
     /**
+     * 判断是否是8.0,8.0 需要处理未知应用来源权限问题,否则直接安装
+     *
+     * @param packageManager 包管理器
+     * @param context        上下文
+     * @param apkName        app 的名字，包含后缀
+     */
+    public static void installApp(PackageManager packageManager, Activity activity, String apkName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            boolean b = packageManager.canRequestPackageInstalls();
+            if (b) {
+                //安装应用的逻辑(写自己的就可以)
+                AppUtils.installAPK(activity, Environment
+                        .getExternalStorageDirectory().getAbsolutePath() + "/" + apkName);
+            } else {
+                //请求安装未知应用来源的权限
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{REQUEST_INSTALL_PACKAGES}, 1);
+            }
+        } else {
+            //安装应用的逻辑(写自己的就可以)
+            AppUtils.installAPK(activity, Environment
+                    .getExternalStorageDirectory().getAbsolutePath() + "/" + apkName);
+        }
+
+    }
+
+    /**
      * 安装 apk
      * Android 7.0后访问文件权限：android.os.FileUriExposedException 的异常，请参考
      * https://blog.csdn.net/acesheep_911/article/details/81708254
@@ -220,8 +253,6 @@ public class AppUtils {
                     | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         }
         context.startActivity(intent);
-
-
     }
 
     /**
