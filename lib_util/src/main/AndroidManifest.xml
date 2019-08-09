@@ -10,13 +10,14 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.REPLACE_EXISTING_PACKAGE"/>
+    <uses-permission android:name="android.permission.REPLACE_EXISTING_PACKAGE" />
     <!-- 8.0必要权限  -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
 
-    <application
-        android:name="com.xzy.utils.UtilsApp">
+    <application android:name="com.xzy.utils.UtilsApp">
+        <!-- Android 4.4 Unable to get provider 问题请参考
+        https://blog.csdn.net/zhourui_1021/article/details/81026863 -->
         <provider
             android:name="com.xzy.utils.asserts.AssertProvider"
             android:authorities="com.xzy.utils.asserts.AssertProvider"
@@ -31,9 +32,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_path"
-                >
-            </meta-data>
+                android:resource="@xml/provider_path"/>
         </provider>
     </application>
 </manifest>

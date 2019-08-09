@@ -12,11 +12,14 @@ import java.util.ArrayList;
 
 /**
  * 权限工具类。
+ * 用法见博客 https://blog.csdn.net/jdfkldjlkjdl/article/details/78365651
  *
  * @author xzy
  */
 @SuppressWarnings("unused")
 public class PermissionUtils {
+
+    public static final int REQUEST_PERMISSION_CODE = 1001;
 
     /**
      * 默认构造方法
@@ -27,12 +30,13 @@ public class PermissionUtils {
     /**
      * 定义一个接口，处理回调结果
      */
-    interface PermissionRequestListener {
+    public interface PermissionRequestListener {
         /**
          * 处理回调结果的接口方法
          *
          * @param reqCode 请求码
-         * @param isAllow 是否被授权(eg:如有 N 个权限，只要有其中一个权限没有被授予,那么 isAllow 为 false，否则为 true)
+         * @param isAllow 是否被授权(eg:如有 N 个权限，只要有其中一个权限没有被授予,
+         *                那么 isAllow 为 false，否则为 true)
          */
         void onPermissionReqResult(int reqCode, boolean isAllow);
     }
@@ -45,7 +49,8 @@ public class PermissionUtils {
      * @param reqCode      请求码
      * @param grantResults 权限请求结果集
      */
-    public static void solvePermissionRequest(PermissionRequestListener listener, int reqCode, int[] grantResults) {
+    public static void solvePermissionRequest(PermissionRequestListener listener,
+                                              int reqCode, int[] grantResults) {
         if (grantResults == null) {
             return;
         }
@@ -68,7 +73,8 @@ public class PermissionUtils {
      * @param requestCode 请求码
      * @return boolean 检查是否需要进行权限动态申请 true：需要动态申请，false：不需要动态申请
      */
-    public static boolean judgePermissionOver23(Context context, String[] permissions, int requestCode) {
+    public static boolean judgePermissionOver23(Context context, String[] permissions,
+                                                int requestCode) {
         try {
             if (permissions == null || permissions.length == 0) {
                 return true;
@@ -76,7 +82,8 @@ public class PermissionUtils {
             if (Build.VERSION.SDK_INT >= 23) {
                 ArrayList<String> checkResult = new ArrayList<>();
                 for (String permission : permissions) {
-                    if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                    if (context.checkSelfPermission(permission) != PackageManager
+                            .PERMISSION_GRANTED) {
                         checkResult.add(permission);
                     }
                 }
@@ -122,7 +129,6 @@ public class PermissionUtils {
      * @return boolean 有录音权限返回 true ，没有录音权限返回 false
      */
     public static boolean checkAudioPermission(Context context) {
-
         // 音频获取源
         int audioSource = MediaRecorder.AudioSource.MIC;
         // 设置音频采样率，44100是目前的标准，但是某些设备仍然支持22050，16000，11025
@@ -152,6 +158,5 @@ public class PermissionUtils {
         audioRecord.release();
         return true;
     }
-
 }
 

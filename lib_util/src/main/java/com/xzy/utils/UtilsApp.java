@@ -1,6 +1,7 @@
 package com.xzy.utils;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.multidex.MultiDex;
 
@@ -15,5 +16,11 @@ public class UtilsApp extends Application {
         INSTANCE = this;
         Utils.init(this);
         MultiDex.install(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(base);
     }
 }

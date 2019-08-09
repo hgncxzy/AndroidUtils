@@ -19,15 +19,14 @@ import android.content.pm.Signature;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.xzy.utils.UtilsApp;
 import com.xzy.utils.common.Utils;
 import com.xzy.utils.shell.ShellUtils;
 
@@ -37,7 +36,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.Manifest.permission.REQUEST_INSTALL_PACKAGES;
 
 /**
  * App 相关的辅助类。
@@ -49,6 +47,8 @@ import static android.Manifest.permission.REQUEST_INSTALL_PACKAGES;
 public class AppUtils {
 
     public static final int INSTALL_APP_REQ_CODE = 1001;
+    public static final int MANAGE_UNKNOWN_APP_SOURCES_INSTALL = 1002;
+    public static final int UNINSTALL_APK = 1003;
 
     private AppUtils() {
         /* cannot be instantiated */
@@ -188,71 +188,6 @@ public class AppUtils {
             }
         }
         return pName.contains(packageName);
-    }
-
-
-    /**
-     * 判断是否是8.0,8.0 需要处理未知应用来源权限问题,否则直接安装
-     *
-     * @param packageManager 包管理器
-     * @param context        上下文
-     * @param apkName        app 的名字，包含后缀
-     */
-    public static void installApp(PackageManager packageManager, Activity activity, String apkName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            boolean b = packageManager.canRequestPackageInstalls();
-            if (b) {
-                //安装应用的逻辑(写自己的就可以)
-                AppUtils.installAPK(activity, Environment
-                        .getExternalStorageDirectory().getAbsolutePath() + "/" + apkName);
-            } else {
-                //请求安装未知应用来源的权限
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{REQUEST_INSTALL_PACKAGES}, 1);
-            }
-        } else {
-            //安装应用的逻辑(写自己的就可以)
-            AppUtils.installAPK(activity, Environment
-                    .getExternalStorageDirectory().getAbsolutePath() + "/" + apkName);
-        }
-
-    }
-
-    /**
-     * 安装 apk
-     * Android 7.0后访问文件权限：android.os.FileUriExposedException 的异常，请参考
-     * https://blog.csdn.net/acesheep_911/article/details/81708254
-     * Didn't find class "android.support.v4.content.FileProvider" on path:的问题，请参考
-     * https://blog.csdn.net/fox_wei_hlz/article/details/78732907
-     * 本库中 将 android.support.v4.content.FileProvider 替换为 ：
-     * androidx.core.content.FileProvider
-     *
-     * @param context 上下文
-     * @param path    文件路径
-     */
-    public static void installAPK(Context context, String path) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Uri uri;
-        if (Build.VERSION.SDK_INT < 24) { // Android 7.0 之前的系统
-            uri = Uri.fromFile(new File(path));
-        } else {// Android 7.0
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);//授予临时权限
-            uri = FileProvider.getUriForFile(context,
-                    getAppPackageName() + ".FileProvider",
-                    new File(path));
-        }
-        intent.setDataAndType(uri, "application/vnd.android.package-archive");
-        // 查询所有符合 intent 跳转目标应用类型的应用，注意此方法必须放置在 setDataAndType 方法之后
-        List<ResolveInfo> resolveLists = context.getPackageManager()
-                .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        // 然后全部授权
-        for (ResolveInfo resolveInfo : resolveLists) {
-            String packageName = resolveInfo.activityInfo.packageName;
-            context.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        }
-        context.startActivity(intent);
     }
 
     /**
@@ -1106,11 +1041,11 @@ public class AppUtils {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             data = Uri.fromFile(file);
         } else {
-            String authority = Utils.getApp().getPackageName() + ".utilcode.provider";
-            data = FileProvider.getUriForFile(Utils.getApp(), authority, file);
+            String authority = getAppPackageName() + ".FileProvider";
+            data = FileProvider.getUriForFile(UtilsApp.INSTANCE, authority, file);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
-        Utils.getApp().grantUriPermission(Utils.getApp().getPackageName(), data, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        Utils.getApp().grantUriPermission(getAppPackageName(), data, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(data, type);
         return isNewTask ? intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) : intent;
     }
