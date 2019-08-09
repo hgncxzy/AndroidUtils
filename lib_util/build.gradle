@@ -31,7 +31,7 @@ dependencies {
     implementation 'com.google.zxing:core:3.4.0'
     // 引入 apache 依赖库
     implementation 'org.apache:apache:21'
-    // SnackBarUtils 工具类需要的依赖
+    // SnackbarUtils 工具类需要的依赖
     implementation 'com.google.android.material:material:1.0.0'
     // CloneUtils 工具类需要的依赖
     implementation 'com.google.code.gson:gson:2.8.5'

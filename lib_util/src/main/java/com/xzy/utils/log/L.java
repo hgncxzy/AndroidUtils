@@ -145,6 +145,20 @@ public class L {
         onLog2File(info, className);
     }
 
+    public void e(String tag, String info, Throwable ex) {
+        if (isIsDebug()) {
+            try {
+                className = (new Throwable().getStackTrace())[1].getFileName();
+                if (className == null) {
+                    className = "";
+                }
+            } catch (Exception ignored) {
+            }
+            Log.e(tag, className.replace(".java", "") + " -> " + info, ex);
+        }
+        onLog2File(info, className);
+    }
+
     public void w(String tag, Throwable ex) {
         if (isIsDebug()) {
             try {
@@ -159,6 +173,7 @@ public class L {
         }
         onLog2File(ex.getMessage(), className);
     }
+
 
     private String getFilePath(Context context) {
         return PathUtils.getExternalAppFilesPath();

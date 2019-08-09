@@ -9,7 +9,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 /**
- * 设备相关的工具类。
+ * 编码相关的工具类。
  * 参考 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/src/main/
  * java/com/blankj/utilcode/util/EncodeUtils.java
  *

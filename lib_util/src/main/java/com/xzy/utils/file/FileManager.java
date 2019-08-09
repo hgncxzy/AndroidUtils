@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 件管理者, 可以获取本机的各种文件
+ * 文件管理者, 可以获取本机的各种文件
  *
  * @author xzy
  */

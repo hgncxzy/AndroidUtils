@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 通用工具类。
+ * 通用工具类。(不好分类的工具类放到这里)
  * 来自 https://github.com/Blankj/AndroidUtilCode
  * @author xzy
  */

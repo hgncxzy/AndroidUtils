@@ -3,6 +3,7 @@ package com.xzy.utils.parseJSON;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -27,6 +28,104 @@ import java.util.Objects;
  */
 @SuppressWarnings("unused")
 public class JSONUtils {
+
+    /**
+     * 解析 jsonArray 字符串数组
+     * 要解析的数据结构 [{"stuNo":100,"name":"小明"},{"stuNo":101,"name":"小张"}]
+     *
+     * @param jsonArrayStr jsonArray 字符串
+     * @return List<Map < String, Object>>
+     */
+    public static List<Map<String, Object>> parseJsonArray(String jsonArrayStr) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> map;
+        // 数据形式：[{"stuNo":100,"name":"小明"},{"stuNo":101,"name":"小张"}]
+        // 数据为数组形式，
+        // 直接用 android框架
+        JSONArray jsonArray;
+        try {
+            jsonArray = new JSONArray(jsonArrayStr);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                // 获取每条数据中的对象
+                JSONObject item = jsonArray.getJSONObject(i);
+                // 注意key值要一致*/
+                Object stuNo = item.getJSONObject("stuNo");
+                Object name = item.getJSONObject("name");
+                map = new HashMap<>();
+                map.put("stuNo", stuNo);
+                map.put("name", name);
+                list.add(map);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    /**
+     * 解析"对象形式"的JSON数据
+     * 数据形式：{"total":2,"success":true,"appList":[{"id":1,"name":"小猪"},
+     * {"id":2,"name":"小猫"}]}
+     * 返回的数据形式是一个 Object 类型，所以可以直接转换成一个 Object
+     *
+     * @param jsonObject 需要解析的 json 对象
+     * @return 返回 List
+     */
+    public static List<Map<String, Object>> parseJsonObject(String jsonObject) throws Exception {
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> map;
+        JSONObject object = new JSONObject(jsonObject);
+        // json对象中有一个数组数据，又可以使用 getJSONArray 获取数组
+        JSONArray jsonArray = object.getJSONArray("appList");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject item = jsonArray.getJSONObject(i);
+            Object id = item.getJSONObject("id");
+            Object name = item.getJSONObject("name");
+            map = new HashMap<>();
+            map.put("id", id);
+            map.put("name", name);
+            list.add(map);
+        }
+        return list;
+    }
+
+
+    /**
+     * 解析类型复杂的 JSON 数据
+     * <p>
+     * 数据形式：
+     * {"name":"小猪", "age":23, "content":{"questionsTotal":2, "questions":
+     * [ { "question": "what's your name?",
+     * "answer": "小猪"}, {"question": "what's your age", "answer": "23"}] } }
+     *
+     * @param complexJsonStr 复杂 json 对象的字符串
+     * @return list
+     */
+    public static List<Map<String, Object>> parseComplexJson(String complexJsonStr) throws Exception {
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> map;
+        JSONObject jsonObject = new JSONObject(complexJsonStr);
+        String name = jsonObject.getString("name");
+        int age = jsonObject.getInt("age");
+        Log.i("abc", "name:" + name + " | age:" + age);
+        JSONObject contentObject = jsonObject.getJSONObject("content");
+        String questionsTotal = contentObject.getString("questionsTotal");
+        JSONArray contentArray = contentObject.getJSONArray("questions");
+        for (int i = 0; i < contentArray.length(); i++) {
+            JSONObject item = contentArray.getJSONObject(i);
+            Object question = item.getJSONObject("question");
+            Object answer = item.getJSONObject("answer");
+            map = new HashMap<>();
+            map.put("question", question);
+            map.put("answer", answer);
+            map.put("total", questionsTotal);
+            list.add(map);
+        }
+        return list;
+    }
+
 
     /**
      * 获取"数组形式"的JSON数据
@@ -80,11 +179,9 @@ public class JSONUtils {
                     // 注意key值要一致*/
                     String stuNo = item.getString("stuNo");
                     String name = item.getString("name");
-
                     map = new HashMap<>();
                     map.put("stuNo", stuNo);
                     map.put("name", name);
-
                     list.add(map);
                 }
             }
@@ -122,7 +219,6 @@ public class JSONUtils {
                 JSONObject item = jsonArray.getJSONObject(i);
                 String id = item.getString("id");
                 String name = item.getString("name");
-
                 map = new HashMap<>();
                 map.put("id", id);
                 map.put("name", name);

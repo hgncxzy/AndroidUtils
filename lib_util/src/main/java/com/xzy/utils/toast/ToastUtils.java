@@ -52,9 +52,51 @@ public final class ToastUtils {
     private static int sBgResource = -1;
     private static int sMsgColor = COLOR_DEFAULT;
     private static int sMsgTextSize = -1;
+    // 是否需要打印 log，可以在 application 的 onCreate 函数里面初始化
+    public static boolean isShow = true;
 
     private ToastUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
+    }
+
+    /**
+     * 短时间显示 Toast
+     *
+     * @param context  context
+     * @param message  message
+     */
+    public static void showShort(Context context, CharSequence message) {
+        if (isShow) Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 短时间显示 Toast
+     *
+     * @param context context
+     * @param message message
+     */
+    public static void showShort(Context context, int message) {
+        if (isShow) Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 长时间显示 Toast
+     *
+     * @param context context
+     * @param message message
+     */
+    public static void showLong(Context context, CharSequence message) {
+        if (isShow) Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * 长时间显示Toast
+     *
+     * @param context context
+     * @param stringId 字符串资源 id
+     */
+    public static void showLong(Context context, int stringId) {
+        if (isShow) Toast.makeText(context, stringId, Toast.LENGTH_LONG).show();
     }
 
     /**
