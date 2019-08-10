@@ -22,8 +22,10 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
+import com.xzy.utils.UtilsApp;
 import com.xzy.utils.common.Utils;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static android.Manifest.permission.WRITE_SETTINGS;
@@ -35,6 +37,9 @@ import static android.Manifest.permission.WRITE_SETTINGS;
  */
 @SuppressWarnings("ALL")
 public class ScreenUtils {
+    /* 获取屏幕休眠时长的错误码 */
+    public final static int GET_SLEEPTIME_ERROR = -123;
+
     private ScreenUtils() {
         /* cannot be instantiated */
         throw new UnsupportedOperationException("cannot be instantiated");
@@ -257,34 +262,6 @@ public class ScreenUtils {
     }
 
     /**
-     * Set the screen to landscape.
-     *
-     * @param activity The activity.
-     */
-    public static void setLandscape(@NonNull final Activity activity) {
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    }
-
-    /**
-     * Set the screen to portrait.
-     *
-     * @param activity The activity.
-     */
-    public static void setPortrait(@NonNull final Activity activity) {
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    }
-
-    /**
-     * Return whether screen is landscape.
-     *
-     * @return {@code true}: yes<br>{@code false}: no
-     */
-    public static boolean isLandscape() {
-        return Utils.getApp().getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE;
-    }
-
-    /**
      * Return whether screen is portrait.
      *
      * @return {@code true}: yes<br>{@code false}: no
@@ -402,6 +379,216 @@ public class ScreenUtils {
             e.printStackTrace();
             return -123;
         }
+    }
+
+
+
+    /**
+     * 获取屏幕的宽度和高度（单位：px）
+     * <p>android 从 3.2 版本开始获取屏幕区域高度会自动减去状态栏高度</p>
+     *
+     * @return Point
+     */
+    public static Point getScreenSize() {
+        DisplayMetrics metrics = UtilsApp.INSTANCE.getResources().getDisplayMetrics();
+        return new Point(metrics.widthPixels, metrics.heightPixels);
+    }
+
+    /**
+     * 获取屏幕的物理尺寸（单位：英寸）
+     *
+     * @return 物理尺寸
+     */
+    public static float getScreenSizeOfDevice() {
+        DisplayMetrics metrics = UtilsApp.INSTANCE.getResources().getDisplayMetrics();
+        float xdpi = metrics.xdpi;
+        float ydpi = metrics.ydpi;
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+        float w = (width / xdpi) * (width / xdpi);
+        float h = (height / ydpi) * (width / xdpi);
+        return (float) Math.sqrt(w + h);
+    }
+
+    /**
+     * 获取屏幕高和宽的比
+     *
+     * @return 屏幕高和宽的比
+     */
+    public static float getScreenRatio() {
+        Point P = getScreenSize();
+        float H = P.y;
+        float W = P.x;
+        return (H / W);
+    }
+
+    /**
+     * 获取屏幕密度（指每平方英寸中的像素数）
+     * <p>例如：0.75 / 1 / 1.5 / ...（dpi/160 可得）</p>
+     *
+     * @return 屏幕密度
+     */
+    public static float getDensity() {
+        return UtilsApp.INSTANCE.getResources().getDisplayMetrics().density;
+    }
+
+    /**
+     * 获取屏幕像素密度 dpi （指每英寸中的像素数）
+     * <p>例如：120 / 160 / 240 /...</p>
+     *
+     * @return 像素密度 dpi
+     */
+    public static int getDensityDpi() {
+        return UtilsApp.INSTANCE.getResources().getDisplayMetrics().densityDpi;
+    }
+
+    /**
+     * 获取状态栏的高度
+     *
+     * @return 状态栏的高度
+     */
+    public static int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = UtilsApp.INSTANCE.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = UtilsApp.INSTANCE.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    /**
+     * 获取底部导航栏的高度
+     *
+     * @return 底部导航栏的高度
+     */
+    public static int getNavBarHeight() {
+        int result = 0;
+        int resourceId = 0;
+        // 判断底部导航栏是否显示
+        int rid = UtilsApp.INSTANCE.getResources().getIdentifier("config_showNavigationBar",
+                "bool", "android");
+        if (rid != 0) {
+            resourceId = UtilsApp.INSTANCE.getResources().getIdentifier(
+                    "navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = UtilsApp.INSTANCE.getResources().getDimensionPixelSize(resourceId);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 判断是否有底部导航栏
+     *
+     * @return {@code true}: 有底部导航栏<br>{@code false}: 没有底部导航栏
+     */
+    public static boolean hasNavigationBar() {
+        boolean hasNavigationBar = false;
+        Resources rs = UtilsApp.INSTANCE.getResources();
+        int id = rs.getIdentifier("config_showNavigationBar", "bool", "android");
+        if (id > 0)
+            hasNavigationBar = rs.getBoolean(id);
+        try {
+            Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
+            Method m = systemPropertiesClass.getMethod("get", String.class);
+            String navBarOverride = (String) m.invoke(systemPropertiesClass, "qemu.hw.mainkeys");
+            if (navBarOverride.equals("1")) {
+                hasNavigationBar = false;
+            } else if (navBarOverride.equals("0")) {
+                hasNavigationBar = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hasNavigationBar;
+    }
+
+    /**
+     * 截屏
+     *
+     * @param activity
+     * @return 返回的 bitmap 不包括状态栏
+     */
+    public static Bitmap screenShotNoStatusBar(@NonNull Activity activity) {
+        View view = activity.getWindow().getDecorView();
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap bmp = view.getDrawingCache();
+        Rect frame = new Rect();
+        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
+        int statusBarHeight = frame.top;
+        Point point = getScreenSize();
+        Bitmap bp = Bitmap.createBitmap(bmp, 0, statusBarHeight, point.x, point.y);
+        view.destroyDrawingCache();
+        return bp;
+    }
+
+    /**
+     * 设置屏幕为横屏
+     * <p>还有一种就是在 Activity 中加属性 android:screenOrientation="landscape"</p>
+     * <p>不设置 Activity 的 android:configChanges 时，切屏会重新调用各个生命周期，切横屏时会执行一次，切竖屏时会执行两次</p>
+     * <p>设置 Activity 的 android:configChanges="orientation"时，切屏还是会重新调用各个生命周期，切横、竖屏时只会执行一次</p>
+     * <p>设置 Activity 的 android:configChanges="orientation|keyboardHidden|screenSize"（4.0 以上必须带最后一个参数）时
+     * 切屏不会重新调用各个生命周期，只会执行 onConfigurationChanged 方法</p>
+     *
+     * @param activity activity
+     */
+    public static void setLandscape(@NonNull Activity activity) {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    /**
+     * 设置屏幕为竖屏
+     *
+     * @param activity activity
+     */
+    public static void setPortrait(@NonNull final Activity activity) {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    /**
+     * 判断是否横屏
+     *
+     * @return {@code true}: 是<br>{@code false}: 否
+     */
+    public static boolean isLandscape() {
+        return UtilsApp.INSTANCE.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+
+
+    /**
+     * 设置进入休眠时长
+     *
+     * @param duration 时长
+     */
+    public static void setSleepTime(final int duration) {
+        Settings.System.putInt(UtilsApp.INSTANCE.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, duration);
+    }
+
+    /**
+     * 获取进入休眠时长
+     *
+     * @return 进入休眠时长，报错返回 {@link #GET_SLEEPTIME_ERROR}
+     */
+    public static int getSleepTime() {
+        try {
+            return Settings.System.getInt(UtilsApp.INSTANCE.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+            return GET_SLEEPTIME_ERROR;
+        }
+    }
+
+    /**
+     * 判断是否是平板
+     *
+     * @return {@code true}: 是<br>{@code false}: 否
+     */
+    public static boolean isTablet() {
+        return (UtilsApp.INSTANCE.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 }
 

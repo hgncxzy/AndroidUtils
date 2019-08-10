@@ -1,162 +1,264 @@
 package com.xzy.utils.permission;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
+import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
+import com.xzy.utils.UtilsApp;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
- * 权限工具类。
- * 用法见博客 https://blog.csdn.net/jdfkldjlkjdl/article/details/78365651
- *
- * @author xzy
+ * 权限管理相关工具类
+ * <p>
+ * <p>从 Android 6.0 开始，应用中需要的权限需要用户授权</p>
+ * <p>在 Android 6.0 以下，应用会强行获取所有的权限，不必用户授权</p>
+ * @reference https://github.com/albert-lii/SUtils/tree/master/sutils
+ * /src/main/java/com/liyi/sutils/utils/permission
+ *  @author xzy
  */
-@SuppressWarnings("unused")
-public class PermissionUtils {
+@SuppressWarnings("all")
+public final class PermissionUtils {
+//    /**
+//     * 使用方法
+//     */
+//PermissionUtils.with(@NonNull Activity activity) // with(@NonNull Fragment fragment)
+//            // 请求码
+//            .requestCode(int requestCode)
+//    // 需要获取的权限
+//              .permissions(@NonNull String... permissions)
+//    // 请求权限结果的回调（使用此回调方法时，必须执行handleRequestPermissionsResult()方法）
+//              .callback(OnPermissionListener callback)
+//    // 是否自动显示拒绝授权时的提示
+//              .autoShowTip(boolean isAutoShowTip)
+//    // 执行权限请求
+//              .execute()
 
-    public static final int REQUEST_PERMISSION_CODE = 1001;
 
-    /**
-     * 默认构造方法
-     */
-    private PermissionUtils() {
-    }
-
-    /**
-     * 定义一个接口，处理回调结果
-     */
-    public interface PermissionRequestListener {
-        /**
-         * 处理回调结果的接口方法
-         *
-         * @param reqCode 请求码
-         * @param isAllow 是否被授权(eg:如有 N 个权限，只要有其中一个权限没有被授予,
-         *                那么 isAllow 为 false，否则为 true)
-         */
-        void onPermissionReqResult(int reqCode, boolean isAllow);
-    }
-
+    /* 权限请求列表 */
+    private static ArrayList<PermissionRequest> mRequestList = new ArrayList<PermissionRequest>();
 
     /**
-     * 处理回调结果
+     * 绑定 activity
      *
-     * @param listener     回调结果接口方法
-     * @param reqCode      请求码
-     * @param grantResults 权限请求结果集
+     * @param activity activity
+     * @return {@link PermissionRequest}
      */
-    public static void solvePermissionRequest(PermissionRequestListener listener,
-                                              int reqCode, int[] grantResults) {
-        if (grantResults == null) {
-            return;
-        }
-        boolean isAllow = true;
-        for (int grantResult : grantResults) {
-            if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                isAllow = false;
-                break;
-            }
-        }
-        if (listener != null) {
-            // 调用接口
-            listener.onPermissionReqResult(reqCode, isAllow);
-        }
+    public static PermissionRequest with(@NonNull Activity activity) {
+        return addRequest(activity);
     }
 
     /**
-     * @param context     上下文
-     * @param permissions 权限数组
-     * @param requestCode 请求码
-     * @return boolean 检查是否需要进行权限动态申请 true：需要动态申请，false：不需要动态申请
+     * 绑定 fragment
+     *
+     * @param fragment fragment
+     * @return {@link PermissionRequest}
      */
-    public static boolean judgePermissionOver23(Context context, String[] permissions,
-                                                int requestCode) {
-        try {
-            if (permissions == null || permissions.length == 0) {
-                return true;
+    public static PermissionRequest with(@NonNull Fragment fragment) {
+        return addRequest(Objects.requireNonNull(fragment.getActivity()));
+    }
+
+    /**
+     * 绑定 android.app.Fragment
+     *
+     * @param fragment fragment
+     * @return {@link PermissionRequest}
+     */
+    @RequiresApi(Build.VERSION_CODES.HONEYCOMB)
+    public static PermissionRequest with(@NonNull android.app.Fragment fragment) {
+        return addRequest(fragment.getActivity());
+    }
+
+    /**
+     * 添加权限请求
+     *
+     * @param activity activity
+     * @return {@link PermissionRequest}
+     */
+    private static PermissionRequest addRequest(@NonNull Activity activity) {
+        PermissionRequest request = new PermissionRequest(activity);
+        if (mRequestList == null) {
+            mRequestList = new ArrayList<PermissionRequest>();
+        }
+        mRequestList.add(request);
+        return request;
+    }
+
+    /**
+     * 处理请求授权后返回的结果
+     * <p>此方法需要放在 onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+     * int[] grantResults) 方法中执行</p>
+     *
+     * @param activity     activity
+     * @param requestCode  请求码
+     * @param permissions  申请的所有权限
+     * @param grantResults 授权结果
+     */
+    public static void handleRequestPermissionsResult(@NonNull Activity activity,
+                                                      int requestCode,
+                                                      @NonNull String[] permissions,
+                                                      int[] grantResults) {
+        // 判断权限请求列表中是否有权限请求
+        if (mRequestList != null && mRequestList.size() > 0) {
+            PermissionRequest currentReq = null;
+            for (PermissionRequest request : mRequestList) {
+                // 遍历权限请求列表，如果有权限请求的 requestCode 与返回的 requestCode 一致，
+                // 且权限请求的申请的所有权限与返回的申请的所有权限一致，则从权限请求列表中提取出该权限请求
+                if ((requestCode == request.getRequestCode()) && permissions
+                        .equals(request.getPermissions())) {
+                    currentReq = request;
+                    break;
+                }
             }
-            if (Build.VERSION.SDK_INT >= 23) {
-                ArrayList<String> checkResult = new ArrayList<>();
-                for (String permission : permissions) {
-                    if (context.checkSelfPermission(permission) != PackageManager
-                            .PERMISSION_GRANTED) {
-                        checkResult.add(permission);
+            if (currentReq != null) {
+                if (currentReq.getPermissionListener() != null) {
+                    // 创建被拒绝授权的权限列表
+                    ArrayList<String> deniedPermissions = new ArrayList<String>();
+                    for (int i = 0; i < grantResults.length; i++) {
+                        // 如果授权结果列表中的值不是已授权，则将权限加入被拒绝授权的权限列表
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            deniedPermissions.add(permissions[i]);
+                        }
+                    }
+                    // 如果所有权限都授权成功,调用授权成功的回调
+                    if (deniedPermissions.size() <= 0) {
+                        if (currentReq.getPermissionListener() != null) {
+                            currentReq.getPermissionListener()
+                                    .onPermissionGranted(requestCode, permissions);
+                        }
+                    } else {
+                        String[] perms = deniedPermissions.toArray(new
+                                String[deniedPermissions.size()]);
+                        // 判断是否有权限被用户在权限弹框中勾选了总是拒绝授权
+                        boolean hasAlwaysDenied = hasAlwaysDeniedPermission(activity, perms);
+                        if (currentReq.isAutoShowTip() && hasAlwaysDenied) {
+                            showTipDialog(activity, null);
+                        }
+                        if (currentReq.getPermissionListener() != null) {
+                            // 调用授权失败的回调
+                            currentReq.getPermissionListener()
+                                    .onPermissionDenied(requestCode, perms, hasAlwaysDenied);
+                        }
                     }
                 }
-                if (checkResult.size() == 0) {
-                    return true;
-                }
-                int i = 0;
-                String[] reqPermissions = new String[checkResult.size()];
-                for (String string : checkResult) {
-                    reqPermissions[i] = string;
-                    i++;
-                }
-                ((Activity) context).requestPermissions(reqPermissions, requestCode);
-                return false;
+                // 在处理完权限请求结果后，从权限请求列表中移除该权限请求
+                mRequestList.remove(currentReq);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 判断是否需要申请权限
+     *
+     * @return {@code true}: 需要申请权限<br>{@code false}: 不需要申请权限
+     */
+    public static boolean isNeedRequest() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+    }
+
+    /**
+     * 判断用户是否已经拥有指定权限
+     *
+     * @param context     上下文对象
+     * @param permissions 需要申请的权限
+     * @return {@code true}: 已获取权限<br>{@code false}: 未获取权限
+     */
+    public static boolean hasPermissions(@NonNull Context context,
+                                         @NonNull String... permissions) {
+        if (isNeedRequest()) {
+            for (String p : permissions)
+                if (!(ContextCompat.checkSelfPermission(context, p)
+                        == PackageManager.PERMISSION_GRANTED))
+                    return false;
+            return true;
         }
         return true;
     }
 
     /**
-     * 判断是是否有录音权限.
-     * <p>
-     * steps:
-     * 检测是否有权限--有--执行相关操作
-     * --无权限--
-     * <p>
-     * --判断系统版本
-     * --小于6.0 直接获取
-     * --大于6.0 动态申请权限
-     * --对申请结果的处理回调
-     * <p>
-     * --允许
-     * <p>
-     * --拒绝
-     * <p>
-     * test:
-     * test1 build.gradle minsdk <23    真机android7.1 清单文件中配置了录音权限
-     * test2 build.gradle minsdk >=23    真机android7.1 清单文件中配置了录音权限
+     * 获取缺少的权限
      *
-     * @param context Context
-     * @return boolean 有录音权限返回 true ，没有录音权限返回 false
+     * @param context     上下文对象
+     * @param permissions 需要申请的所有权限
+     * @return 需要申请的所有权限中未获取的权限
      */
-    public static boolean checkAudioPermission(Context context) {
-        // 音频获取源
-        int audioSource = MediaRecorder.AudioSource.MIC;
-        // 设置音频采样率，44100是目前的标准，但是某些设备仍然支持22050，16000，11025
-        int sampleRateInHz = 44100;
-        // 设置音频的录制的声道CHANNEL_IN_STEREO为双声道，CHANNEL_CONFIGURATION_MONO为单声道
-        int channelConfig = AudioFormat.CHANNEL_IN_STEREO;
-        // 音频数据格式:PCM 16位每个样本。保证设备支持。PCM 8位每个样本。不一定能得到设备支持。
-        int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
-        // 缓冲区字节大小
-        int bufferSizeInBytes = AudioRecord.getMinBufferSize(sampleRateInHz,
-                channelConfig, audioFormat);
-        AudioRecord audioRecord = new AudioRecord(audioSource, sampleRateInHz,
-                channelConfig, audioFormat, bufferSizeInBytes);
-        //开始录制音频
-        try {
-            // 防止某些手机崩溃，例如联想
-            audioRecord.startRecording();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
+    public static String[] getDeniedPermissions(@NonNull Context context,
+                                                @NonNull String... permissions) {
+        ArrayList<String> permissionList = new ArrayList<String>();
+        if (isNeedRequest()) {
+            for (String p : permissions) {
+                if (ContextCompat.checkSelfPermission(context, p)
+                        == PackageManager.PERMISSION_DENIED) {
+                    permissionList.add(p);
+                }
+            }
         }
-        // 根据开始录音判断是否有录音权限s
-        if (audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+        return permissionList.toArray(new String[permissionList.size()]);
+    }
+
+    /**
+     * 判断是否在自动弹出的权限弹框中勾选了总是拒绝授权
+     *
+     * @param activity          activity
+     * @param deniedPermissions 需要申请的权限
+     * @return {@code true}: 在权限弹出框中勾选了“总是拒绝授权”<br>{@code false}: 在权限弹出框中未勾选
+     * “总是拒绝授权”
+     */
+    public static boolean hasAlwaysDeniedPermission(@NonNull Activity activity,
+                                                    @NonNull String... deniedPermissions) {
+        if (isNeedRequest()) {
+            for (String permission : deniedPermissions)
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission))
+                    return true;
             return false;
         }
-        audioRecord.stop();
-        // 释放资源
-        audioRecord.release();
-        return true;
+        return false;
     }
+
+    /**
+     * 显示提示框，用于在缺少权限的情况下，用户拒绝授权，给用户弹出提示信息
+     *
+     * @param context 上下文对象
+     * @param message 提示框中的内容
+     */
+    public static void showTipDialog(@NonNull final Context context, @NonNull String message) {
+        if (isNeedRequest()) {
+            new AlertDialog.Builder(context)
+                    .setTitle("提示信息")
+                    .setMessage(TextUtils.isEmpty(message) ?
+                            "当前应用缺少必要权限，可能无法正常使用所有功能。请单击【确定】按钮前往设置中心" +
+                                    "进行权限授权"
+                            : message)
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            openAppSettings();
+                        }
+                    }).show();
+        }
+    }
+
+    /**
+     * 根据包名跳转到系统自带的应用程序信息界面
+     */
+    public static void openAppSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + UtilsApp.INSTANCE.getPackageName()));
+        UtilsApp.INSTANCE.startActivity(intent);
+    }
+
 }
 

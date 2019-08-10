@@ -1,9 +1,9 @@
 package com.xzy.test.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.xzy.test.MainActivity
 import com.xzy.test.R
 import com.xzy.utils.activity.ActivityUtils
