@@ -26,6 +26,24 @@ public final class ColorUtils {
         throw new UnsupportedOperationException("u can't instantiate me...");
     }
 
+
+    /**
+     * 矫正颜色的透明度
+     *
+     * @param color  颜色值
+     * @param factor 透明度值
+     * @return 颜色整数值
+     */
+    @ColorInt
+    public static int adjustAlpha(@ColorInt int color,
+                                  @SuppressWarnings("SameParameterValue") float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
+    }
+
     /**
      * Returns a color associated with a particular resource ID.
      *

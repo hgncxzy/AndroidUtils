@@ -1,4 +1,4 @@
-package com.xzy.utils.permission;
+package com.xzy.utils.permission.realize_1;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.xzy.utils.UtilsApp;
+
 import java.util.ArrayList;
 import java.util.Objects;
 

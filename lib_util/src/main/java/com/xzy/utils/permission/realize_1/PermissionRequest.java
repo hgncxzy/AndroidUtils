@@ -1,4 +1,4 @@
-package com.xzy.utils.permission;
+package com.xzy.utils.permission.realize_1;
 
 import android.app.Activity;
 

@@ -19,7 +19,8 @@ import java.lang.annotation.RetentionPolicy;
 @SuppressWarnings("unused")
 @SuppressLint("InlinedApi")
 public final class PermissionConstants {
-
+    public static final int REQUEST_OVERLAY_PERMISSION_CODE = 10001;
+    public static final int REQUEST_WRITE_SETTINGS_PERMISSION_CODE = 10002;
     public static final String CALENDAR   = Manifest.permission_group.CALENDAR;
     public static final String CAMERA     = Manifest.permission_group.CAMERA;
     public static final String CONTACTS   = Manifest.permission_group.CONTACTS;

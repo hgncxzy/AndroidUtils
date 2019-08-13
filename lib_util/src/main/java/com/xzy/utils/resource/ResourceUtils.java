@@ -1,8 +1,29 @@
 package com.xzy.utils.resource;
 
 
-import androidx.annotation.RawRes;
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
+import androidx.annotation.AnimRes;
+import androidx.annotation.ArrayRes;
+import androidx.annotation.ColorRes;
+import androidx.annotation.DimenRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
+import androidx.annotation.StringRes;
+import androidx.annotation.StyleableRes;
+import androidx.appcompat.content.res.AppCompatResources;
+
+import com.xzy.utils.UtilsApp;
 import com.xzy.utils.common.Utils;
 
 import java.io.BufferedOutputStream;
@@ -320,13 +341,13 @@ public final class ResourceUtils {
     // other utils methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private static boolean writeFileFromIS(final String filePath,
+    public static boolean writeFileFromIS(final String filePath,
                                            final InputStream is,
                                            final boolean append) {
         return writeFileFromIS(getFileByPath(filePath), is, append);
     }
 
-    private static boolean writeFileFromIS(final File file,
+    public static boolean writeFileFromIS(final File file,
                                            final InputStream is,
                                            final boolean append) {
         if (!createOrExistsFile(file) || is == null) return false;
@@ -358,11 +379,11 @@ public final class ResourceUtils {
         }
     }
 
-    private static File getFileByPath(final String filePath) {
+    public static File getFileByPath(final String filePath) {
         return isSpace(filePath) ? null : new File(filePath);
     }
 
-    private static boolean createOrExistsFile(final File file) {
+    public static boolean createOrExistsFile(final File file) {
         if (file == null) return false;
         if (file.exists()) return file.isFile();
         if (!createOrExistsDir(file.getParentFile())) return false;
@@ -374,11 +395,11 @@ public final class ResourceUtils {
         }
     }
 
-    private static boolean createOrExistsDir(final File file) {
+    public static boolean createOrExistsDir(final File file) {
         return file != null && (file.exists() ? file.isDirectory() : file.mkdirs());
     }
 
-    private static boolean isSpace(final String s) {
+    public static boolean isSpace(final String s) {
         if (s == null) return true;
         for (int i = 0, len = s.length(); i < len; ++i) {
             if (!Character.isWhitespace(s.charAt(i))) {
@@ -388,7 +409,7 @@ public final class ResourceUtils {
         return true;
     }
 
-    private static byte[] is2Bytes(final InputStream is) {
+    public static byte[] is2Bytes(final InputStream is) {
         if (is == null) return null;
         ByteArrayOutputStream os = null;
         try {
@@ -418,7 +439,7 @@ public final class ResourceUtils {
         }
     }
 
-    private static List<String> is2List(final InputStream is,
+    public static List<String> is2List(final InputStream is,
                                         final String charsetName) {
         BufferedReader reader = null;
         try {
@@ -445,5 +466,209 @@ public final class ResourceUtils {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 获取resources对象
+     *
+     * @return
+     */
+    public static Resources getResources() {
+        return UtilsApp.INSTANCE.getResources();
+    }
+
+    /**
+     * 获取字符串
+     *
+     * @param resId
+     * @return
+     */
+    public static String getString(@StringRes int resId) {
+        return getResources().getString(resId);
+    }
+
+    /**
+     * 获取资源图片
+     *
+     * @param resId
+     * @return
+     */
+    public static Drawable getDrawable(@DrawableRes int resId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return UtilsApp.INSTANCE.getDrawable(resId);
+        }
+        return getResources().getDrawable(resId);
+    }
+
+    /**
+     * 获取资源图片【和主体有关】
+     *
+     * @param resId
+     * @return
+     */
+    public static Drawable getDrawable(Context context, @DrawableRes int resId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return context.getDrawable(resId);
+        }
+        return context.getResources().getDrawable(resId);
+    }
+
+    /**
+     * 获取svg资源图片
+     *
+     * @param context
+     * @param resId
+     * @return
+     */
+    public static Drawable getVectorDrawable(Context context, @DrawableRes int resId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return context.getDrawable(resId);
+        }
+        return AppCompatResources.getDrawable(context, resId);
+    }
+
+    /**
+     * 获取Drawable属性（兼容VectorDrawable）
+     *
+     * @param context
+     * @param typedArray
+     * @param index
+     * @return
+     */
+    public static Drawable getDrawableAttrRes(Context context, TypedArray typedArray, @StyleableRes int index) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return typedArray.getDrawable(index);
+        } else {
+            int resourceId = typedArray.getResourceId(index, -1);
+            if (resourceId != -1) {
+                return AppCompatResources.getDrawable(context, resourceId);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取dimes值，返回的是精确的值
+     *
+     * @param resId
+     * @return
+     */
+    public static float getDimens(@DimenRes int resId) {
+        return getResources().getDimension(resId);
+    }
+
+    /**
+     * 获取Color值
+     *
+     * @param resId
+     * @return
+     */
+    public static int getColor(@ColorRes int resId) {
+        return getResources().getColor(resId);
+    }
+
+    /**
+     * 获取ColorStateList值
+     *
+     * @param resId
+     * @return
+     */
+    public static ColorStateList getColors(@ColorRes int resId) {
+        return getResources().getColorStateList(resId);
+    }
+
+    /**
+     * 获取dimes值，返回的是【去余取整】的值
+     *
+     * @param resId
+     * @return
+     */
+    public static int getDimensionPixelOffset(@DimenRes int resId) {
+        return getResources().getDimensionPixelOffset(resId);
+    }
+
+    /**
+     * 获取dimes值，返回的是【4舍5入】的值
+     *
+     * @param resId
+     * @return
+     */
+    public static int getDimensionPixelSize(@DimenRes int resId) {
+        return getResources().getDimensionPixelSize(resId);
+    }
+
+    /**
+     * 获取字符串的数组
+     *
+     * @param resId
+     * @return
+     */
+    public static String[] getStringArray(@ArrayRes int resId) {
+        return getResources().getStringArray(resId);
+    }
+
+    /**
+     * 获取数字的数组
+     *
+     * @param resId
+     * @return
+     */
+    public static int[] getIntArray(@ArrayRes int resId) {
+        return getResources().getIntArray(resId);
+    }
+
+    /**
+     * 获取动画
+     *
+     * @param resId
+     * @return
+     */
+    public static Animation getAnim(@AnimRes int resId) {
+        return AnimationUtils.loadAnimation(UtilsApp.INSTANCE, resId);
+    }
+
+    /**
+     * 设置控件的背景
+     *
+     * @param view
+     * @param d
+     */
+    public static void setBackgroundCompat(View view, Drawable d) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            //noinspection deprecation
+            view.setBackgroundDrawable(d);
+        } else {
+            view.setBackground(d);
+        }
+    }
+
+    /**
+     * Check if layout direction is RTL
+     *
+     * @return {@code true} if the layout direction is right-to-left
+     */
+    public static boolean isRtl() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 &&
+                getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+    }
+
+    /**
+     * 是否在数组资源中
+     *
+     * @param find
+     * @param ary
+     * @param <T>
+     * @return
+     */
+    public static <T> boolean isIn(@NonNull T find, @Nullable T[] ary) {
+        if (ary == null || ary.length == 0) {
+            return false;
+        }
+        for (T item : ary) {
+            if (item.equals(find)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

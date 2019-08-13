@@ -1,4 +1,4 @@
-package com.xzy.utils.device;
+package com.xzy.utils.deviceinfo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -33,14 +33,14 @@ import static android.content.Context.WIFI_SERVICE;
 /**
  * 设备相关的工具类。
  * 参考 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/src/main/
- * java/com/blankj/utilcode/util/DeviceUtils.java
+ * java/com/blankj/utilcode/util/DeviceInfoUtils.java
  *
  * @author xzy
  */
 @SuppressWarnings("all")
-public final class DeviceUtils {
+public final class DeviceInfoUtils {
 
-    private DeviceUtils() {
+    private DeviceInfoUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
     }
 
@@ -371,7 +371,7 @@ public final class DeviceUtils {
     }
 
 
-    private static final    String KEY_UDID = "KEY_UDID";
+    private static final String KEY_UDID = "KEY_UDID";
     private volatile static String udid;
 
     /**
@@ -401,7 +401,7 @@ public final class DeviceUtils {
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public static String getUniqueDeviceId(String prefix) {
         if (udid == null) {
-            synchronized (DeviceUtils.class) {
+            synchronized (DeviceInfoUtils.class) {
                 if (udid == null) {
                     final String id = SPUtils.getInstance().getString(KEY_UDID, "-1");
                     if (id != null) {
@@ -419,7 +419,8 @@ public final class DeviceUtils {
                             return saveUdid(prefix + 2, androidId);
                         }
 
-                        final String deviceId = ((TelephonyManager) Utils.getApp().getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+                        final String deviceId = ((TelephonyManager) Utils.getApp()
+                                .getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
                         if (!TextUtils.isEmpty(deviceId)) {
                             return saveUdid(prefix + 3, deviceId);
                         }
@@ -454,7 +455,8 @@ public final class DeviceUtils {
             }
             return uniqueDeviceId.substring(st + 1).equals(getUdid("", androidId));
         } else if (type.startsWith("3")) {
-            final String deviceId = ((TelephonyManager) Utils.getApp().getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+            final String deviceId = ((TelephonyManager) Utils.getApp()
+                    .getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
             if (TextUtils.isEmpty(deviceId)) {
                 return false;
             }

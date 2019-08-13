@@ -1,34 +1,52 @@
 package com.xzy.utils.intent;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.provider.Settings;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.StringDef;
 import androidx.core.content.FileProvider;
 
+import com.xzy.utils.UtilsApp;
 import com.xzy.utils.common.Utils;
+import com.xzy.utils.file.FileUtils;
+import com.xzy.utils.string.StringUtils;
 
 import java.io.File;
+import java.io.Serializable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import static android.Manifest.permission.CALL_PHONE;
+import static com.xzy.utils.intent.IntentUtils.DocumentType.ANY;
+import static com.xzy.utils.intent.IntentUtils.DocumentType.AUDIO;
+import static com.xzy.utils.intent.IntentUtils.DocumentType.IMAGE;
+import static com.xzy.utils.intent.IntentUtils.DocumentType.VIDEO;
 
 /**
  * 意图相关的工具类。
- * 参考 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/src/main/
+ * 部分参考 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/src/main/
  * java/com/blankj/utilcode/util/IntentUtils.java
+ * 部分参考 https://github.com/xuexiangjys/XUtil
  *
  * @author xzy
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
 public final class IntentUtils {
 
     private IntentUtils() {
@@ -596,75 +614,408 @@ public final class IntentUtils {
         }
     }
 
-//    /**
-//     * 获取选择照片的 Intent
-//     *
-//     * @return
-//     */
-//    public static Intent getPickIntentWithGallery() {
-//        Intent intent = new Intent(Intent.ACTION_PICK);
-//        return intent.setType("image*//*");
-//    }
-//
-//    /**
-//     * 获取从文件中选择照片的 Intent
-//     *
-//     * @return
-//     */
-//    public static Intent getPickIntentWithDocuments() {
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//        return intent.setType("image*//*");
-//    }
-//
-//
-//    public static Intent buildImageGetIntent(final Uri saveTo, final int outputX, final int outputY, final boolean returnData) {
-//        return buildImageGetIntent(saveTo, 1, 1, outputX, outputY, returnData);
-//    }
-//
-//    public static Intent buildImageGetIntent(Uri saveTo, int aspectX, int aspectY,
-//                                             int outputX, int outputY, boolean returnData) {
-//        Intent intent = new Intent();
-//        if (Build.VERSION.SDK_INT < 19) {
-//            intent.setAction(Intent.ACTION_GET_CONTENT);
-//        } else {
-//            intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-//            intent.addCategory(Intent.CATEGORY_OPENABLE);
-//        }
-//        intent.setType("image*//*");
-//        intent.putExtra("output", saveTo);
-//        intent.putExtra("aspectX", aspectX);
-//        intent.putExtra("aspectY", aspectY);
-//        intent.putExtra("outputX", outputX);
-//        intent.putExtra("outputY", outputY);
-//        intent.putExtra("scale", true);
-//        intent.putExtra("return-data", returnData);
-//        intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
-//        return intent;
-//    }
-//
-//    public static Intent buildImageCropIntent(final Uri uriFrom, final Uri uriTo, final int outputX, final int outputY, final boolean returnData) {
-//        return buildImageCropIntent(uriFrom, uriTo, 1, 1, outputX, outputY, returnData);
-//    }
-//
-//    public static Intent buildImageCropIntent(Uri uriFrom, Uri uriTo, int aspectX, int aspectY,
-//                                              int outputX, int outputY, boolean returnData) {
-//        Intent intent = new Intent("com.android.camera.action.CROP");
-//        intent.setDataAndType(uriFrom, "image*//*");
-//        intent.putExtra("crop", "true");
-//        intent.putExtra("output", uriTo);
-//        intent.putExtra("aspectX", aspectX);
-//        intent.putExtra("aspectY", aspectY);
-//        intent.putExtra("outputX", outputX);
-//        intent.putExtra("outputY", outputY);
-//        intent.putExtra("scale", true);
-//        intent.putExtra("return-data", returnData);
-//        intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
-//        return intent;
-//    }
-//
-//    public static Intent buildImageCaptureIntent(final Uri uri) {
-//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-//        return intent;
-//    }
+    /**
+     * 获取选择照片的 Intent
+     *
+     * @return
+     */
+    public static Intent getPickIntentWithGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        return intent.setType("image*//*");
+    }
+
+    /**
+     * 获取从文件中选择照片的 Intent
+     *
+     * @return
+     */
+    public static Intent getPickIntentWithDocuments() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        return intent.setType("image*//*");
+    }
+
+
+    public static Intent buildImageGetIntent(final Uri saveTo, final int outputX, final int outputY, final boolean returnData) {
+        return buildImageGetIntent(saveTo, 1, 1, outputX, outputY, returnData);
+    }
+
+    public static Intent buildImageGetIntent(Uri saveTo, int aspectX, int aspectY,
+                                             int outputX, int outputY, boolean returnData) {
+        Intent intent = new Intent();
+        if (Build.VERSION.SDK_INT < 19) {
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+        } else {
+            intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+        intent.setType("image*//*");
+        intent.putExtra("output", saveTo);
+        intent.putExtra("aspectX", aspectX);
+        intent.putExtra("aspectY", aspectY);
+        intent.putExtra("outputX", outputX);
+        intent.putExtra("outputY", outputY);
+        intent.putExtra("scale", true);
+        intent.putExtra("return-data", returnData);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
+        return intent;
+    }
+
+    public static Intent buildImageCropIntent(final Uri uriFrom, final Uri uriTo, final int outputX, final int outputY, final boolean returnData) {
+        return buildImageCropIntent(uriFrom, uriTo, 1, 1, outputX, outputY, returnData);
+    }
+
+    public static Intent buildImageCropIntent(Uri uriFrom, Uri uriTo, int aspectX, int aspectY,
+                                              int outputX, int outputY, boolean returnData) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uriFrom, "image*//*");
+        intent.putExtra("crop", "true");
+        intent.putExtra("output", uriTo);
+        intent.putExtra("aspectX", aspectX);
+        intent.putExtra("aspectY", aspectY);
+        intent.putExtra("outputX", outputX);
+        intent.putExtra("outputY", outputY);
+        intent.putExtra("scale", true);
+        intent.putExtra("return-data", returnData);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
+        return intent;
+    }
+
+    public static Intent buildImageCaptureIntent(final Uri uri) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        return intent;
+    }
+
+    /**
+     * 获取安装 App（支持 8.0）的意图
+     * <p>8.0 需添加权限
+     * {@code <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />}</p>
+     *
+     * @param filePath  文件路径
+     * @param authority 7.0 及以上安装需要传入清单文件中的{@code <provider>}的 authorities 属性
+     *                  <br>参看 https://developer.android.com/reference/android/support/v4/content/FileProvider.html
+     * @return 安装 App（支持 8.0）的意图
+     */
+    public static Intent getInstallAppIntent(final String filePath, final String authority) {
+        return getInstallAppIntent(FileUtils.getFileByPath(filePath), authority);
+    }
+
+    /**
+     * 获取安装 App(支持 8.0)的意图
+     * <p>8.0 需添加权限
+     * {@code <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />}</p>
+     *
+     * @param file      文件
+     * @param authority 7.0 及以上安装需要传入清单文件中的{@code <provider>}的 authorities 属性
+     *                  <br>参看 https://developer.android.com/reference/android/support/v4/content/FileProvider.html
+     * @return 安装 App(支持 8.0)的意图
+     */
+    public static Intent getInstallAppIntent(final File file, final String authority) {
+        return getInstallAppIntent(file, authority, false);
+    }
+
+    /**
+     * 获取安装 App(支持 8.0)的意图
+     * <p>8.0 需添加权限
+     * {@code <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />}</p>
+     *
+     * @param file      文件
+     * @param authority 7.0 及以上安装需要传入清单文件中的{@code <provider>}的 authorities 属性
+     *                  <br>参看 https://developer.android.com/reference/android/support/v4/content/FileProvider.html
+     * @param isNewTask 是否开启新的任务栈
+     * @return 安装 App(支持 8.0)的意图
+     */
+    public static Intent getInstallAppIntent(final File file,
+                                             final String authority,
+                                             final boolean isNewTask) {
+        if (file == null) return null;
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri data;
+        String type = "application/vnd.android.package-archive";
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            data = Uri.fromFile(file);
+        } else {
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            data = FileProvider.getUriForFile(UtilsApp.INSTANCE, authority, file);
+        }
+        intent.setDataAndType(data, type);
+        return getIntent(intent, isNewTask);
+    }
+
+
+    /**
+     * 获取 App 具体设置的意图
+     *
+     * @param packageName 包名
+     * @return App 具体设置的意图
+     */
+    public static Intent getAppDetailsSettingsIntent(final String packageName) {
+        return getAppDetailsSettingsIntent(packageName, false);
+    }
+
+    /**
+     * 获取 App 具体设置的意图
+     *
+     * @param packageName 包名
+     * @param isNewTask   是否开启新的任务栈
+     * @return App 具体设置的意图
+     */
+    public static Intent getAppDetailsSettingsIntent(final String packageName,
+                                                     final boolean isNewTask) {
+        Intent intent = new Intent("android.settings.APPLICATION_DETAILS_SETTINGS");
+        intent.setData(Uri.parse("package:" + packageName));
+        return getIntent(intent, isNewTask);
+    }
+
+
+    //==========================数据获取==============================//
+
+    /**
+     * 获取附加数据
+     *
+     * @param intent
+     * @return
+     */
+    public static Bundle getExtras(Intent intent) {
+        return intent != null ? intent.getExtras() : null;
+    }
+
+    /**
+     * 获取Intent中的Bundle
+     *
+     * @param intent
+     * @param key
+     * @return
+     */
+    public static Bundle getBundleExtra(Intent intent, String key) {
+        return intent != null ? intent.getBundleExtra(key) : null;
+    }
+
+    /**
+     * 获取Intent中的String
+     *
+     * @param intent
+     * @param key
+     * @return
+     */
+    public static String getStringExtra(Intent intent, String key) {
+        return intent != null ? intent.getStringExtra(key) : null;
+    }
+
+    /**
+     * 获取Intent中的Boolean
+     *
+     * @param intent
+     * @param key
+     * @param defValue 默认值
+     * @return
+     */
+    public static boolean getBooleanExtra(Intent intent, String key, boolean defValue) {
+        return intent != null ? intent.getBooleanExtra(key, defValue) : defValue;
+    }
+
+    /**
+     * 获取Intent中的Int
+     *
+     * @param intent
+     * @param key
+     * @param defValue 默认值
+     * @return
+     */
+    public static int getIntExtra(Intent intent, String key, int defValue) {
+        return intent != null ? intent.getIntExtra(key, defValue) : defValue;
+    }
+
+    /**
+     * 获取Intent中的Float
+     *
+     * @param intent
+     * @param key
+     * @param defValue 默认值
+     * @return
+     */
+    public static float getFloatExtra(Intent intent, String key, float defValue) {
+        return intent != null ? intent.getFloatExtra(key, defValue) : defValue;
+    }
+
+    /**
+     * 获取Intent中的Serializable数据
+     *
+     * @param intent
+     * @param key
+     * @return
+     */
+    public static <T> T getSerializableExtra(Intent intent, String key) {
+        return intent != null ? (T) intent.getSerializableExtra(key) : null;
+    }
+
+    /**
+     * 获取Intent中的Bundle携带的Serializable数据
+     *
+     * @param intent
+     * @param key
+     * @return
+     */
+    public static <T> T getBundleSerializable(Intent intent, String key) {
+        Bundle bundle = getExtras(intent);
+        return bundle != null ? (T) bundle.getSerializable(key) : null;
+    }
+
+    /**
+     * 获取Intent意图
+     *
+     * @param context
+     * @param cls     类名
+     * @param action  动作
+     * @return
+     */
+    @NonNull
+    public static Intent getIntent(Context context, Class<?> cls, String action) {
+        return getIntent(context, cls, action, false);
+    }
+
+    /**
+     * 获取Intent意图
+     *
+     * @param context
+     * @param cls     类名
+     * @param action  动作
+     * @return
+     */
+    @NonNull
+    public static Intent getIntent(Context context, Class<?> cls, String action, boolean isNewTask) {
+        Intent intent = new Intent();
+        if (cls != null) {
+            intent.setClass(context, cls);
+        }
+        if (action != null) {
+            intent.setAction(action);
+        }
+        if (isNewTask) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        return intent;
+    }
+
+    /**
+     * 传递数据
+     *
+     * @param intent
+     * @param key    关键字
+     * @param param  数据
+     * @return
+     */
+    public static Intent putExtra(Intent intent, String key, Object param) {
+        if (param instanceof Serializable) {
+            intent.putExtra(key, (Serializable) param);
+        } else if (param instanceof String) {
+            intent.putExtra(key, (String) param);
+        } else if (param instanceof String[]) {
+            intent.putExtra(key, (String[]) param);
+        } else if (param instanceof boolean[]) {
+            intent.putExtra(key, (boolean[]) param);
+        } else if (param instanceof short[]) {
+            intent.putExtra(key, (short[]) param);
+        } else if (param instanceof int[]) {
+            intent.putExtra(key, (int[]) param);
+        } else if (param instanceof long[]) {
+            intent.putExtra(key, (long[]) param);
+        } else if (param instanceof float[]) {
+            intent.putExtra(key, (float[]) param);
+        } else if (param instanceof double[]) {
+            intent.putExtra(key, (double[]) param);
+        } else if (param instanceof Bundle) {
+            intent.putExtra(key, (Bundle) param);
+        } else if (param instanceof byte[]) {
+            intent.putExtra(key, (byte[]) param);
+        } else if (param instanceof char[]) {
+            intent.putExtra(key, (char[]) param);
+        } else if (param instanceof Parcelable) {
+            intent.putExtra(key, (Parcelable) param);
+        } else if (param instanceof Parcelable[]) {
+            intent.putExtra(key, (Parcelable[]) param);
+        } else if (param instanceof CharSequence) {
+            intent.putExtra(key, (CharSequence) param);
+        } else if (param instanceof CharSequence[]) {
+            intent.putExtra(key, (CharSequence[]) param);
+        }
+        return intent;
+    }
+
+
+    /**
+     * 传递数据
+     *
+     * @param bundle
+     * @param key    关键字
+     * @param param  数据
+     * @return
+     */
+    public static Bundle putBundle(Bundle bundle, String key, Object param) {
+        if (param instanceof Serializable) {
+            bundle.putSerializable(key, (Serializable) param);
+        } else if (param instanceof String) {
+            bundle.putString(key, (String) param);
+        } else if (param instanceof String[]) {
+            bundle.putStringArray(key, (String[]) param);
+        } else if (param instanceof boolean[]) {
+            bundle.putBooleanArray(key, (boolean[]) param);
+        } else if (param instanceof short[]) {
+            bundle.putShortArray(key, (short[]) param);
+        } else if (param instanceof int[]) {
+            bundle.putIntArray(key, (int[]) param);
+        } else if (param instanceof long[]) {
+            bundle.putLongArray(key, (long[]) param);
+        } else if (param instanceof float[]) {
+            bundle.putFloatArray(key, (float[]) param);
+        } else if (param instanceof double[]) {
+            bundle.putDoubleArray(key, (double[]) param);
+        } else if (param instanceof Bundle) {
+            bundle.putBundle(key, (Bundle) param);
+        } else if (param instanceof byte[]) {
+            bundle.putByteArray(key, (byte[]) param);
+        } else if (param instanceof char[]) {
+            bundle.putCharArray(key, (char[]) param);
+        } else if (param instanceof Parcelable) {
+            bundle.putParcelable(key, (Parcelable) param);
+        } else if (param instanceof Parcelable[]) {
+            bundle.putParcelableArray(key, (Parcelable[]) param);
+        } else if (param instanceof CharSequence) {
+            bundle.putCharSequence(key, (CharSequence) param);
+        } else if (param instanceof CharSequence[]) {
+            bundle.putCharSequenceArray(key, (CharSequence[]) param);
+        }
+        return bundle;
+    }
+
+
+    /**
+     * 获取文件选择的 Intent
+     *
+     * @param documentType 文件类型
+     * @return
+     */
+    public static Intent getDocumentPickerIntent(@DocumentType String documentType) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        if (!StringUtils.isEmpty(documentType)) {
+            return intent.setType(documentType);
+        } else {
+            return intent.setType(ANY);
+        }
+    }
+
+
+    /**
+     * 选择文件的类型
+     */
+    @StringDef({IMAGE, AUDIO, VIDEO, ANY})
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DocumentType {
+        String IMAGE = "image/*";
+        String AUDIO = "audio/*";
+        String VIDEO = "video/*";
+        String ANY = "*/*";
+    }
 }
+

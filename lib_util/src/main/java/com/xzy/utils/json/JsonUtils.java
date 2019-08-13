@@ -1,6 +1,9 @@
-package com.xzy.utils.parseJSON;
+package com.xzy.utils.json;
 
 import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,6 +12,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -21,13 +25,12 @@ import java.util.Objects;
 
 
 /**
- * json 处理工具类,
- * 从 internet 获取 json 数据，并转换为 list。
- *
+ * json 处理工具类
+ * 部分参考 https://github.com/xuexiangjys/XUtil
  * @author xzy
  */
 @SuppressWarnings("unused")
-public class JSONUtils {
+public class JsonUtils {
 
     /**
      * 解析 jsonArray 字符串数组
@@ -311,5 +314,73 @@ public class JSONUtils {
             e.printStackTrace();
         }
         return bout.toByteArray();
+    }
+
+    /**
+     * 把 JSON 字符串 转换为 单个指定类型的对象
+     *
+     * @param json     包含了单个对象数据的JSON字符串
+     * @param classOfT 指定类型对象的Class
+     * @return 指定类型对象
+     */
+    public static <T> T fromJson(String json, Class<T> classOfT) {
+        try {
+            return new Gson().fromJson(json, classOfT);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 解析Json字符串
+     *
+     * @param json    Json字符串
+     * @param typeOfT 泛型类
+     * @return T
+     */
+    public static <T> T fromJson(String json, Type typeOfT) {
+        try {
+            return new Gson().fromJson(json, typeOfT);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 把单个指定类型的对象 转换为 JSON 字符串
+     *
+     * @param object 指定类型的对象
+     * @return json字符串
+     */
+    public static String toJson(Object object) {
+        return new Gson().toJson(object);
+    }
+
+    /**
+     * 把 单个指定类型的对象 转换为 JSONObject 对象
+     *
+     * @param object 指定类型的对象
+     * @return JSONObject
+     */
+    public static JSONObject toJSONObject(Object object) {
+        return toJSONObject(toJson(object));
+    }
+
+    /**
+     * 把 JSON 字符串 转换为 JSONObject 对象
+     *
+     * @param json json字符串
+     * @return JSONObject
+     */
+    public static JSONObject toJSONObject(String json) {
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
     }
 }
