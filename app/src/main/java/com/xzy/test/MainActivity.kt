@@ -5,11 +5,12 @@ import android.widget.SimpleAdapter
 import androidx.appcompat.app.AppCompatActivity
 import com.xzy.test.activity.ActivityUtilsTest
 import com.xzy.test.app.AppUtilsActivity
-import com.xzy.utils.activity.ActivityUtils
 import com.xzy.test.constant.Configs
+import com.xzy.test.constant.Per
+import com.xzy.test.xml.XmlUtilsTest
+import com.xzy.utils.activity.ActivityUtils
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 /**
  * 程序入口,包含测试用例入口
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Per.isGrantExternalRW(this)
         initView()
     }
 
@@ -38,7 +40,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 1 -> {
                     // AdaptScreenUtilsActivity
-
+                    ActivityUtils.startActivity(Intent(this,
+                            XmlUtilsTest::class.java))
                 }
                 2 -> {
                     // AppUtilsActivity

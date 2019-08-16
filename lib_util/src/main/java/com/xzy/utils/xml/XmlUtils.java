@@ -23,7 +23,13 @@ import java.util.Map;
 public class XmlUtils {
 
     /**
-     * 解析 assert 目录下面的 xml 文件。(该方法的测试文件为 assert/test.xml)
+     * 解析 assert 目录下面的 xml 文件。
+     * 用法举例:
+     * 比如要读取 assets/test.xml)，你需要这样做：
+     * 1. 如果没有 assets 文件夹，请先新建，其中 assets 与 java 和 res 在同一个层次。
+     * 2. 调用该方法，传入 test.xml 文件名，记得包含后缀
+     * 3. 针对 xml 的具体的字段，修改该方法中对应的字段，以获取到对应的 key 保存的 object 对象
+     * 4. 将 object 对象取出（通过 map#get）,并转换为具体的类型(String,Int...)
      *
      * @param context  上下文
      * @param fileName xml 的文件名
