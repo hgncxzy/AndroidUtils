@@ -1,6 +1,6 @@
 package com.xzy.test.app
 
-import android.Manifest
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.xzy.utils.path.PathUtils
@@ -9,9 +9,7 @@ import android.os.Environment
 
 import com.xzy.utils.app.AppUtils.*
 import com.xzy.utils.common.Utils
-import com.xzy.utils.permission.PermissionUtils
-import com.xzy.utils.permission.PermissionUtils.REQUEST_PERMISSION_CODE
-import com.xzy.utils.toast.T
+import com.xzy.utils.toast.ToastUtils.showShort
 import java.io.File
 
 
@@ -22,21 +20,17 @@ import java.io.File
 @Suppress("unused")
 class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
     override fun onForeground() {
-        T.showShort(this, "app onForeground")
+        showShort(this, "app onForeground")
     }
 
     override fun onBackground() {
-        T.showShort(this, "app onBackground")
+        showShort(this, "app onBackground")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(com.xzy.test.R.layout.activity_app_utils)
         //动态申请权限
-        PermissionUtils.judgePermissionOver23(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_PERMISSION_CODE)
         // openApp
         openApp.setOnClickListener {
             openApp(this, getAppPackageName())
@@ -44,6 +38,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
         // installAPK
         // 需要先动态申请读写权限
         installAPK.setOnClickListener {
+            @Suppress("DEPRECATION")
             installApp(Environment.getExternalStorageDirectory().absolutePath + "/test.apk")
         }
 
@@ -79,7 +74,7 @@ class AppUtilsActivity : AppCompatActivity(), Utils.OnAppStatusChangedListener {
             if (File(path).exists()) {
                 getApkInfo(File(PathUtils.getDataPath() + "/test.apk"))
             } else {
-                T.showShort(this, "file not exist")
+                showShort(this, "file not exist")
             }
         }
     }

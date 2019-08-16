@@ -9,7 +9,7 @@ import android.os.Environment;
 import android.os.Looper;
 import android.util.Log;
 
-import com.xzy.utils.toast.T;
+import com.xzy.utils.toast.ToastUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -136,7 +136,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             @Override
             public void run() {
                 Looper.prepare();
-                T.showShort(mContext, "很抱歉,程序出现异常,即将退出.");
+                ToastUtils.showShort(mContext, "很抱歉,程序出现异常,即将退出.");
                 Looper.loop();
             }
         }.start();
