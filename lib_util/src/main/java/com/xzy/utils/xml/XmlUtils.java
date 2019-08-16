@@ -32,7 +32,7 @@ public class XmlUtils {
      * 4. 将 object 对象取出（通过 map#get）,并转换为具体的类型(String,Int...)
      *
      * @param context  上下文
-     * @param fileName xml 的文件名
+     * @param fileName xml 的文件名 包含后缀
      * @return Map<String, Object>
      */
     public static Map<String, Object> parseXMLFromAsserts(Context context, String fileName) {
