@@ -1,9 +1,13 @@
 package com.xzy.utils.view;
 
+import android.os.Build;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.xzy.utils.common.Utils;
+
+import java.util.Locale;
 
 /**
  * View 相关的工具类。
@@ -62,6 +66,24 @@ public class ViewUtils {
      */
     public static void runOnUiThreadDelayed(final Runnable runnable, long delayMillis) {
         Utils.runOnUiThreadDelayed(runnable, delayMillis);
+    }
+
+    /**
+     * Return whether horizontal layout direction of views are from Right to Left.
+     *
+     * @return {@code true}: yes<br>{@code false}: no
+     */
+    public static boolean isLayoutRtl() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Locale primaryLocale;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                primaryLocale = Utils.getApp().getResources().getConfiguration().getLocales().get(0);
+            } else {
+                primaryLocale = Utils.getApp().getResources().getConfiguration().locale;
+            }
+            return TextUtils.getLayoutDirectionFromLocale(primaryLocale) == View.LAYOUT_DIRECTION_RTL;
+        }
+        return false;
     }
 
     /**

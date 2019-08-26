@@ -1,7 +1,6 @@
 package com.xzy.utils.phone;
 
 import android.annotation.SuppressLint;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,22 +9,19 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.RequiresPermission;
 
 import com.xzy.utils.common.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Objects;
 
 import static android.Manifest.permission.CALL_PHONE;
 import static android.Manifest.permission.READ_PHONE_STATE;
-import static android.Manifest.permission.SEND_SMS;
 
 /**
  * 电话和联系人相关的工具类。
@@ -114,7 +110,6 @@ public class PhoneUtils {
         context.startActivity(sendIntent);
     }
 
-
     /**
      * Return whether the device is phone.
      *
@@ -127,14 +122,17 @@ public class PhoneUtils {
 
     /**
      * Return the unique device id.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
+     * <p>If the version of SDK is greater than 28, it will return an empty string.</p>
+     * <p>Must hold {@code <uses-permission android:name="android.permission.READ_PHONE_STATE" />}</p>
      *
      * @return the unique device id
      */
     @SuppressLint("HardwareIds")
     @RequiresPermission(READ_PHONE_STATE)
     public static String getDeviceId() {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return "";
+        }
         TelephonyManager tm = getTelephonyManager();
         String deviceId = tm.getDeviceId();
         if (!TextUtils.isEmpty(deviceId)) return deviceId;
@@ -160,111 +158,132 @@ public class PhoneUtils {
 
     /**
      * Return the IMEI.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
+     * <p>If the version of SDK is greater than 28, it will return an empty string.</p>
+     * <p>Must hold {@code <uses-permission android:name="android.permission.READ_PHONE_STATE" />}</p>
      *
      * @return the IMEI
      */
-    @SuppressLint("HardwareIds")
     @RequiresPermission(READ_PHONE_STATE)
     public static String getIMEI() {
+        return getImeiOrMeid(true);
+    }
+
+    /**
+     * Return the MEID.
+     * <p>If the version of SDK is greater than 28, it will return an empty string.</p>
+     * <p>Must hold {@code <uses-permission android:name="android.permission.READ_PHONE_STATE" />}</p>
+     *
+     * @return the MEID
+     */
+    @RequiresPermission(READ_PHONE_STATE)
+    public static String getMEID() {
+        return getImeiOrMeid(false);
+    }
+
+    @SuppressLint("HardwareIds")
+    @RequiresPermission(READ_PHONE_STATE)
+    public static String getImeiOrMeid(boolean isImei) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return "";
+        }
         TelephonyManager tm = getTelephonyManager();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return tm.getImei();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                Class clazz = tm.getClass();
-                //noinspection unchecked
-                Method getImeiMethod = clazz.getDeclaredMethod("getImei");
-                getImeiMethod.setAccessible(true);
-                String imei = (String) getImeiMethod.invoke(tm);
-                if (imei != null) return imei;
-            } catch (Exception e) {
-                Log.e("PhoneUtils", "getIMEI: ", e);
+            if (isImei) {
+                return getMinOne(tm.getImei(0), tm.getImei(1));
+            } else {
+                return getMinOne(tm.getMeid(0), tm.getMeid(1));
             }
-        }
-        String imei = tm.getDeviceId();
-        if (imei != null && imei.length() == 15) {
-            return imei;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            String ids = getSystemPropertyByReflect(isImei ? "ril.gsm.imei" : "ril.cdma.meid");
+            if (!TextUtils.isEmpty(ids)) {
+                String[] idArr = ids.split(",");
+                if (idArr.length == 2) {
+                    return getMinOne(idArr[0], idArr[1]);
+                } else {
+                    return idArr[0];
+                }
+            }
+
+            String id0 = tm.getDeviceId();
+            String id1 = "";
+            try {
+                Method method = tm.getClass().getMethod("getDeviceId", int.class);
+                id1 = (String) method.invoke(tm,
+                        isImei ? TelephonyManager.PHONE_TYPE_GSM
+                                : TelephonyManager.PHONE_TYPE_CDMA);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            if (isImei) {
+                if (id0 != null && id0.length() < 15) {
+                    id0 = "";
+                }
+                if (id1 != null && id1.length() < 15) {
+                    id1 = "";
+                }
+            } else {
+                if (id0 != null && id0.length() == 14) {
+                    id0 = "";
+                }
+                if (id1 != null && id1.length() == 14) {
+                    id1 = "";
+                }
+            }
+            return getMinOne(id0, id1);
+        } else {
+            String deviceId = tm.getDeviceId();
+            if (isImei) {
+                if (deviceId != null && deviceId.length() >= 15) {
+                    return deviceId;
+                }
+            } else {
+                if (deviceId != null && deviceId.length() == 14) {
+                    return deviceId;
+                }
+            }
         }
         return "";
     }
 
-    /**
-     * Return the IMEI.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
-     *
-     * @param slotId of which deviceID is returned
-     * @return the IMEI
-     */
-    @SuppressLint("HardwareIds")
-    @RequiresPermission(READ_PHONE_STATE)
-    public static String getIMEI(int slotId) {
-        TelephonyManager tm = getTelephonyManager();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return tm.getImei(slotId);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                Class clazz = tm.getClass();
-                //noinspection unchecked
-                Method getImeiMethod = clazz.getDeclaredMethod("getImei", int.class);
-                getImeiMethod.setAccessible(true);
-                String imei = (String) getImeiMethod.invoke(tm, slotId);
-                if (imei != null) return imei;
-            } catch (Exception e) {
-                Log.e("PhoneUtils", "getIMEI: ", e);
+    private static String getMinOne(String s0, String s1) {
+        boolean empty0 = TextUtils.isEmpty(s0);
+        boolean empty1 = TextUtils.isEmpty(s1);
+        if (empty0 && empty1) return "";
+        if (!empty0 && !empty1) {
+            if (s0.compareTo(s1) <= 0) {
+                return s0;
+            } else {
+                return s1;
             }
         }
-        return getIMEI();
+        if (!empty0) return s0;
+        return s1;
     }
 
-    /**
-     * Return the MEID.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
-     *
-     * @return the MEID
-     */
-    @SuppressLint("HardwareIds")
-    @RequiresPermission(READ_PHONE_STATE)
-    public static String getMEID() {
-        TelephonyManager tm = getTelephonyManager();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return tm.getMeid();
-        }
-        return tm.getDeviceId();
-    }
-
-    /**
-     * Return the MEID.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
-     *
-     * @return the MEID
-     */
-    @SuppressLint("HardwareIds")
-    @RequiresPermission(READ_PHONE_STATE)
-    public static String getMEID(final int slotId) {
-        TelephonyManager tm = getTelephonyManager();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return tm.getMeid(slotId);
-        }
-        return getMEID();
+    private static String getSystemPropertyByReflect(String key) {
+        try {
+            @SuppressLint("PrivateApi")
+            Class<?> clz = Class.forName("android.os.SystemProperties");
+            Method getMethod = clz.getMethod("get", String.class, String.class);
+            return (String) getMethod.invoke(clz, key, "");
+        } catch (Exception e) {/**/}
+        return "";
     }
 
     /**
      * Return the IMSI.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
+     * <p>Must hold {@code <uses-permission android:name="android.permission.READ_PHONE_STATE" />}</p>
      *
      * @return the IMSI
      */
     @SuppressLint("HardwareIds")
     @RequiresPermission(READ_PHONE_STATE)
     public static String getIMSI() {
-        TelephonyManager tm = getTelephonyManager();
-        return tm.getSubscriberId();
+        return getTelephonyManager().getSubscriberId();
     }
 
     /**
@@ -332,51 +351,6 @@ public class PhoneUtils {
     }
 
     /**
-     * Return the phone status.
-     * <p>Must hold {@code <uses-permission
-     * android:name="android.permission.READ_PHONE_STATE" />}</p>
-     *
-     * @return DeviceId = 99000311726612<br>
-     * DeviceSoftwareVersion = 00<br>
-     * Line1Number =<br>
-     * NetworkCountryIso = cn<br>
-     * NetworkOperator = 46003<br>
-     * NetworkOperatorName = 中国电信<br>
-     * NetworkType = 6<br>
-     * PhoneType = 2<br>
-     * SimCountryIso = cn<br>
-     * SimOperator = 46003<br>
-     * SimOperatorName = 中国电信<br>
-     * SimSerialNumber = 89860315045710604022<br>
-     * SimState = 5<br>
-     * SubscriberId(IMSI) = 460030419724900<br>
-     * VoiceMailNumber = *86<br>
-     */
-    @SuppressLint("HardwareIds")
-    @RequiresPermission(READ_PHONE_STATE)
-    public static String getPhoneStatus() {
-        TelephonyManager tm = getTelephonyManager();
-        String str = "";
-        //noinspection ConstantConditions
-        str += "DeviceId(IMEI) = " + tm.getDeviceId() + "\n";
-        str += "DeviceSoftwareVersion = " + tm.getDeviceSoftwareVersion() + "\n";
-        str += "Line1Number = " + tm.getLine1Number() + "\n";
-        str += "NetworkCountryIso = " + tm.getNetworkCountryIso() + "\n";
-        str += "NetworkOperator = " + tm.getNetworkOperator() + "\n";
-        str += "NetworkOperatorName = " + tm.getNetworkOperatorName() + "\n";
-        str += "NetworkType = " + tm.getNetworkType() + "\n";
-        str += "PhoneType = " + tm.getPhoneType() + "\n";
-        str += "SimCountryIso = " + tm.getSimCountryIso() + "\n";
-        str += "SimOperator = " + tm.getSimOperator() + "\n";
-        str += "SimOperatorName = " + tm.getSimOperatorName() + "\n";
-        str += "SimSerialNumber = " + tm.getSimSerialNumber() + "\n";
-        str += "SimState = " + tm.getSimState() + "\n";
-        str += "SubscriberId(IMSI) = " + tm.getSubscriberId() + "\n";
-        str += "VoiceMailNumber = " + tm.getVoiceMailNumber();
-        return str;
-    }
-
-    /**
      * Skip to dial.
      *
      * @param phoneNumber The phone number.
@@ -424,31 +398,6 @@ public class PhoneUtils {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Send sms silently.
-     * <p>Must hold {@code <uses-permission android:name="android.permission.SEND_SMS" />}</p>
-     *
-     * @param phoneNumber The phone number.
-     * @param content     The content.
-     */
-    @RequiresPermission(SEND_SMS)
-    public static void sendSmsSilent(final String phoneNumber, final String content) {
-        if (TextUtils.isEmpty(content)) return;
-        PendingIntent sentIntent = PendingIntent.getBroadcast(Utils.getApp(),
-                0, new Intent("send"), 0);
-        SmsManager smsManager = SmsManager.getDefault();
-        if (content.length() >= 70) {
-            List<String> ms = smsManager.divideMessage(content);
-            for (String str : ms) {
-                smsManager.sendTextMessage(phoneNumber, null, str, sentIntent,
-                        null);
-            }
-        } else {
-            smsManager.sendTextMessage(phoneNumber, null, content, sentIntent,
-                    null);
-        }
     }
 
     private static TelephonyManager getTelephonyManager() {

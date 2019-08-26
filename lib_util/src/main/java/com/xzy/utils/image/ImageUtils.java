@@ -24,9 +24,6 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-
-import androidx.exifinterface.media.ExifInterface;
-
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -45,6 +42,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.exifinterface.media.ExifInterface;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -2414,70 +2412,12 @@ public class ImageUtils {
         }
     }
 
-    /**
-     * Return the type of image.
-     *
-     * @param filePath The path of file.
-     * @return the type of image
-     */
-    public static String getImageType(final String filePath) {
-        return getImageType(getFileByPath(filePath));
-    }
-
-    /**
-     * Return the type of image.
-     *
-     * @param file The file.
-     * @return the type of image
-     */
-    public static String getImageType(final File file) {
-        if (file == null) return "";
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
-            String type = getImageType(is);
-            if (type != null) {
-                return type;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return getFileExtension(file.getAbsolutePath()).toUpperCase();
-    }
-
     private static String getFileExtension(final String filePath) {
         if (isSpace(filePath)) return filePath;
         int lastPoi = filePath.lastIndexOf('.');
         int lastSep = filePath.lastIndexOf(File.separator);
         if (lastPoi == -1 || lastSep >= lastPoi) return "";
         return filePath.substring(lastPoi + 1);
-    }
-
-    private static String getImageType(final InputStream is) {
-        if (is == null) return null;
-        try {
-            byte[] bytes = new byte[8];
-            return is.read(bytes, 0, 8) != -1 ? getImageType(bytes) : null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private static String getImageType(final byte[] bytes) {
-        if (isJPEG(bytes)) return "JPEG";
-        if (isGIF(bytes)) return "GIF";
-        if (isPNG(bytes)) return "PNG";
-        if (isBMP(bytes)) return "BMP";
-        return null;
     }
 
     private static boolean isJPEG(final byte[] b) {
@@ -2838,6 +2778,120 @@ public class ImageUtils {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Return the type of image.
+     *
+     * @param filePath The path of file.
+     * @return the type of image
+     */
+    public static ImageType getImageType(final String filePath) {
+        return getImageType(getFileByPath(filePath));
+    }
+
+    /**
+     * Return the type of image.
+     *
+     * @param file The file.
+     * @return the type of image
+     */
+    public static ImageType getImageType(final File file) {
+        if (file == null) return null;
+        InputStream is = null;
+        try {
+            is = new FileInputStream(file);
+            ImageType type = getImageType(is);
+            if (type != null) {
+                return type;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private static ImageType getImageType(final InputStream is) {
+        if (is == null) return null;
+        try {
+            byte[] bytes = new byte[12];
+            return is.read(bytes) != -1 ? getImageType(bytes) : null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static ImageType getImageType(final byte[] bytes) {
+        String type = bytes2HexString(bytes).toUpperCase();
+        if (type.contains("FFD8FF")) {
+            return ImageType.TYPE_JPG;
+        } else if (type.contains("89504E47")) {
+            return ImageType.TYPE_PNG;
+        } else if (type.contains("47494638")) {
+            return ImageType.TYPE_GIF;
+        } else if (type.contains("49492A00") || type.contains("4D4D002A")) {
+            return ImageType.TYPE_TIFF;
+        } else if (type.contains("424D")) {
+            return ImageType.TYPE_BMP;
+        } else if (type.startsWith("52494646") && type.endsWith("57454250")) {//524946461c57000057454250-12个字节
+            return ImageType.TYPE_WEBP;
+        } else if (type.contains("00000100") || type.contains("00000200")) {
+            return ImageType.TYPE_ICO;
+        } else {
+            return ImageType.TYPE_UNKNOWN;
+        }
+    }
+
+    private static final char[] hexDigits =
+            {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+    private static String bytes2HexString(final byte[] bytes) {
+        if (bytes == null) return "";
+        int len = bytes.length;
+        if (len <= 0) return "";
+        char[] ret = new char[len << 1];
+        for (int i = 0, j = 0; i < len; i++) {
+            ret[j++] = hexDigits[bytes[i] >> 4 & 0x0f];
+            ret[j++] = hexDigits[bytes[i] & 0x0f];
+        }
+        return new String(ret);
+    }
+
+    public enum ImageType {
+        TYPE_JPG("jpg"),
+
+        TYPE_PNG("png"),
+
+        TYPE_GIF("gif"),
+
+        TYPE_TIFF("tiff"),
+
+        TYPE_BMP("bmp"),
+
+        TYPE_WEBP("webp"),
+
+        TYPE_ICO("ico"),
+
+        TYPE_UNKNOWN("unknown");
+
+        String value;
+
+        ImageType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
 }
