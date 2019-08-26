@@ -8,7 +8,7 @@ import android.view.WindowManager;
 import java.util.Objects;
 
 /**
- * 常用单位转换的辅助类。
+ * 屏幕分辨率辅助类。
  */
 @SuppressWarnings("unused")
 public class DensityUtils {

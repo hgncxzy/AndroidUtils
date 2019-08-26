@@ -10,7 +10,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 /**
- * 常用单位转换的辅助类。
+ * 日期转换的辅助类。
  */
 @SuppressWarnings("ALL")
 @SuppressLint("SimpleDateFormat")

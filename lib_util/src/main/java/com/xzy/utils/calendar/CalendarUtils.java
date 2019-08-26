@@ -14,9 +14,9 @@ import java.util.Objects;
  * @author xzy
  */
 @SuppressWarnings("unused")
-public class LunarUtils {
+public class CalendarUtils {
 
-    private static final String TAG = "LunarUtils";
+    private static final String TAG = "CalendarUtils";
 
     private int year;
     private int month;
@@ -135,7 +135,7 @@ public class LunarUtils {
         return null;
     }
 
-    public LunarUtils(Calendar cal) {
+    public CalendarUtils(Calendar cal) {
         @SuppressWarnings("unused") int yearCyl, monCyl, dayCyl;
         int leapMonth;
         Date baseDate = null;
