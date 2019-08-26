@@ -1,6 +1,6 @@
 ### 简介
 
-Android 封装好的工具类代码合集. 
+Android 封装好的工具类代码合集. 持续更新优化工具类的实现。
 
 ###  工具列表
 
@@ -102,5 +102,11 @@ Android 封装好的工具类代码合集.
 ### 特别感谢
 
 - [https://github.com/Blankj/AndroidUtilCode](https://github.com/Blankj/AndroidUtilCode)
+
+### 联系
+
+1. ID : hgncxzy
+2. 邮箱：[hgncxzy@qq.com](mailto:hgncxzy@qq.com)
+3. 项目地址：https://github.com/hgncxzy/AndroidUtils
 
 
