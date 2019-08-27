@@ -158,11 +158,14 @@ public final class DeviceInfoUtils {
      */
     @SuppressLint("MissingPermission")
     public static String getIMEI(Context ctx) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            return "未知,Android 9.0 以后无法获取 IMEI";
+        }
         TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Activity.TELEPHONY_SERVICE);
         try {
             return tm.getDeviceId() + "\n";
         } catch (Exception e) {
-            return null;
+            return "获取 IMEI 异常";
         }
     }
 
