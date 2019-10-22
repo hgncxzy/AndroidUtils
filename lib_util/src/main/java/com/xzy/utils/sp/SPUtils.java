@@ -1,17 +1,22 @@
 package com.xzy.utils.sp;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.xzy.utils.common.Utils;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * SP 相关的工具类。
@@ -25,7 +30,7 @@ import java.util.Set;
 public final class SPUtils {
 
     private static final Map<String, SPUtils> SP_UTILS_MAP = new HashMap<>();
-    private              SharedPreferences    sp;
+    private SharedPreferences sp;
 
     /**
      * Return the single {@link SPUtils} instance
@@ -33,7 +38,7 @@ public final class SPUtils {
      * @return the single {@link SPUtils} instance
      */
     public static SPUtils getInstance() {
-        return getInstance("", Context.MODE_PRIVATE);
+        return getInstance("", MODE_PRIVATE);
     }
 
     /**
@@ -53,7 +58,7 @@ public final class SPUtils {
      * @return the single {@link SPUtils} instance
      */
     public static SPUtils getInstance(String spName) {
-        return getInstance(spName, Context.MODE_PRIVATE);
+        return getInstance(spName, MODE_PRIVATE);
     }
 
     /**
@@ -79,7 +84,7 @@ public final class SPUtils {
     }
 
     private SPUtils(final String spName) {
-        sp = Utils.getApp().getSharedPreferences(spName, Context.MODE_PRIVATE);
+        sp = Utils.getApp().getSharedPreferences(spName, MODE_PRIVATE);
     }
 
     private SPUtils(final String spName, final int mode) {
@@ -95,6 +100,34 @@ public final class SPUtils {
     public void put(@NonNull final String key, final String value) {
         put(key, value, false);
     }
+
+
+    /**
+     * 存储 List<User>
+     *
+     * @param key
+     * @param userList 需要存储的 List<Object> 对象
+     */
+    public void put(String key, List<User> userList) {
+        SharedPreferences.Editor editor = sp.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(userList);
+        editor.putString(key, json);
+        editor.commit();
+    }
+
+    /**
+     * 读取保存的 list
+     */
+    public List<User> getUserList(String key) {
+        Gson gson = new Gson();
+        String json = sp.getString(key, null);
+        Type type = new TypeToken<List<User>>() {
+        }.getType();
+        List<User> arrayList = gson.fromJson(json, type);
+        return arrayList;
+    }
+
 
     /**
      * Put the string value in sp.

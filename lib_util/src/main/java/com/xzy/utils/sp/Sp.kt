@@ -1,10 +1,10 @@
-package com.xzy.ui.kotlindemo.sp
+package com.xzy.utils.sp
 
 import android.content.SharedPreferences
 import android.content.Context.MODE_PRIVATE
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.xzy.ui.kotlindemo.RootApp
+import com.xzy.utils.UtilsApp.INSTANCE
 
 
 object Sp {
@@ -14,7 +14,7 @@ object Sp {
      */
     fun put(key: String, userList: List<User>) {
         if (sp == null) {
-            sp = RootApp.getContext().getSharedPreferences("config", MODE_PRIVATE)
+            sp = INSTANCE.applicationContext.getSharedPreferences("config", MODE_PRIVATE)
         }
         val editor = sp?.edit()
         val gson = Gson()
@@ -26,9 +26,9 @@ object Sp {
     /**
      * 读取
      */
-    fun get(key:String): List<User> {
+    fun get(key: String): List<User> {
         if (sp == null) {
-            sp = RootApp.getContext().getSharedPreferences("config", MODE_PRIVATE)
+            sp = INSTANCE.applicationContext.getSharedPreferences("config", MODE_PRIVATE)
         }
         val gson = Gson()
         val json = sp?.getString(key, null)
