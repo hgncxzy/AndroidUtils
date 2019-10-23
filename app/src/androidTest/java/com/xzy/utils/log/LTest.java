@@ -32,8 +32,8 @@ public class LTest {
 
 
     @Test
-    public void isIsDebug() {
-        assertTrue(mLog.isIsDebug());
+    public void isDebug() {
+        assertTrue(mLog.isDebug());
     }
 
     @Test

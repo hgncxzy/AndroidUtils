@@ -28,7 +28,28 @@ public class L {
     private static final Object mLock = new Object();
     @SuppressLint("StaticFieldLeak")
     private static Context mContext;
+    /**
+     * 是否打印日志
+     */
+    public boolean isDebug = true;
+    public String className;
+    public String TAG = "";
+    public long fileSize = 0;
+    public boolean isWriteLog2File = false;
+    @SuppressLint("SimpleDateFormat")
+    // 日志的输出格式
+    private static final SimpleDateFormat LOG_SDF =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @SuppressLint("SimpleDateFormat")
+    // 日志文件格式
+    private static final SimpleDateFormat LOG_FILE =
+            new SimpleDateFormat("yyyy-MM-dd");
 
+    /**
+     * 实例化
+     * @param context 上下文
+     * @return L 对象
+     */
     public static L getInstance(Context context) {
         if (mInstance == null) {
             synchronized (mLock) {
@@ -41,70 +62,57 @@ public class L {
         return mInstance;
     }
 
-    /**
-     * 是否打印日志
-     */
-    public boolean isDebug = true;
-    public String className;
-    public String TAG = "";
-    public long fileSize = 0;
-    public boolean isLog2File = false;
-
-    public boolean isIsDebug() {
+    public boolean isDebug() {
         return isDebug;
     }
 
-    public String getTAG() {
+    public String getTag() {
         return TAG;
     }
 
+    /**
+     * 设置调试模式
+     * @param debug
+     * @return
+     */
     public L setDebug(boolean debug) {
         mInstance.isDebug = debug;
         return mInstance;
     }
 
-    public L setTAG(String TAG) {
-        mInstance.TAG = TAG;
+    public L setTag(String Tag) {
+        mInstance.TAG = Tag;
         return mInstance;
     }
 
-    public boolean isIsLog2File() {
-        return isLog2File;
+    public boolean isWriteLog2File() {
+        return isWriteLog2File;
     }
 
-    public L setLog2File(boolean isLog2File) {
-        mInstance.isLog2File = isLog2File;
+    public L setLog2File(boolean isWriteLog2File) {
+        mInstance.isWriteLog2File = isWriteLog2File;
         return mInstance;
     }
-
-    @SuppressLint("SimpleDateFormat")
-    // 日志的输出格式
-    private static final SimpleDateFormat LOG_SDF =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    @SuppressLint("SimpleDateFormat")
-    // 日志文件格式
-    private static final SimpleDateFormat LOG_FILE =
-            new SimpleDateFormat("yyyy-MM-dd");
 
     // 下面四个是默认 tag 的函数
     public void i(String msg) {
-        if (isIsDebug()) i(getTAG(), msg);
+        if (isDebug()) i(getTag(), msg);
     }
 
     public void d(String msg) {
-        if (isIsDebug()) d(getTAG(), msg);
+        if (isDebug()) d(getTag(), msg);
     }
 
     public void e(String msg) {
-        if (isIsDebug()) e(getTAG(), msg);
+        if (isDebug()) e(getTag(), msg);
     }
 
     public void w(Throwable ex) {
-        if (isIsDebug()) w(getTAG(), ex);
+        if (isDebug()) w(getTag(), ex);
     }
 
     public void i(String tag, String info) {
-        if (isIsDebug()) {
+        if (isDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
                 if (className == null) {
@@ -114,11 +122,11 @@ public class L {
             }
             Log.i(tag, className.replace(".java", "") + " -> " + info);
         }
-        onLog2File(info, className);
+        onWriteLog2File(info, className);
     }
 
     public void d(String tag, String info) {
-        if (isIsDebug()) {
+        if (isDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
                 if (className == null) {
@@ -128,11 +136,11 @@ public class L {
             }
             Log.d(tag, className.replace(".java", "") + " -> " + info);
         }
-        onLog2File(info, className);
+        onWriteLog2File(info, className);
     }
 
     public void e(String tag, String info) {
-        if (isIsDebug()) {
+        if (isDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
                 if (className == null) {
@@ -142,11 +150,11 @@ public class L {
             }
             Log.e(tag, className.replace(".java", "") + " -> " + info);
         }
-        onLog2File(info, className);
+        onWriteLog2File(info, className);
     }
 
     public void e(String tag, String info, Throwable ex) {
-        if (isIsDebug()) {
+        if (isDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
                 if (className == null) {
@@ -156,11 +164,11 @@ public class L {
             }
             Log.e(tag, className.replace(".java", "") + " -> " + info, ex);
         }
-        onLog2File(info, className);
+        onWriteLog2File(info, className);
     }
 
     public void w(String tag, Throwable ex) {
-        if (isIsDebug()) {
+        if (isDebug()) {
             try {
                 className = (new Throwable().getStackTrace())[1].getFileName();
                 if (className == null) {
@@ -169,9 +177,9 @@ public class L {
             } catch (Exception ignored) {
             }
             Log.i(tag, className.replace(".java", "") + " -> ");
-            Log.w(getTAG(), ex);
+            Log.w(getTag(), ex);
         }
-        onLog2File(ex.getMessage(), className);
+        onWriteLog2File(ex.getMessage(), className);
     }
 
 
@@ -179,7 +187,7 @@ public class L {
         return PathUtils.getExternalAppFilesPath();
     }
 
-    private synchronized void SwitchFile() {
+    private synchronized void switchFile() {
         if (fileSize > 1024 * 1024) {
             for (int i = 5; i > 0; i--) {
                 File file = new File(getFilePath(mContext)
@@ -206,8 +214,8 @@ public class L {
      * @param text 需要写入的日志信息
      * @param type 日志类型
      */
-    private void onLog2File(String text, String type) {
-        if (!isIsLog2File()) {
+    private void onWriteLog2File(String text, String type) {
+        if (!isWriteLog2File()) {
             return;
         }
         Date nowTime = new Date();
@@ -216,14 +224,14 @@ public class L {
                 + "    "
                 + type
                 + " "
-                + getTAG()
+                + getTag()
                 + "    "
                 + text;
         File temp = new File(getFilePath(mContext) + "/log");
         if (!temp.exists()) {
             temp.mkdirs();
         }
-        SwitchFile();
+        switchFile();
         File file = new File(getFilePath(mContext)
                 + "/log/", "running_log.txt");
         try {
