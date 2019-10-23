@@ -28,7 +28,7 @@ import androidx.annotation.RequiresPermission;
 
 import com.xzy.utils.common.Utils;
 import com.xzy.utils.shell.ShellUtils;
-import com.xzy.utils.sp.SPUtils;
+import com.xzy.utils.sp.SpUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -793,7 +793,7 @@ public final class DeviceInfoUtils {
         if (udid == null) {
             synchronized (DeviceInfoUtils.class) {
                 if (udid == null) {
-                    final String id = SPUtils.getInstance().getString(KEY_UDID, "-1");
+                    final String id = SpUtils.getInstance().getString(KEY_UDID, "-1");
                     if (id != null) {
                         udid = id;
                         return udid;
@@ -828,7 +828,7 @@ public final class DeviceInfoUtils {
         // {prefix}{type}{32id}
         if (TextUtils.isEmpty(uniqueDeviceId) && uniqueDeviceId.length() < 33) return false;
         if (uniqueDeviceId.equals(udid)) return true;
-        final String cachedId = SPUtils.getInstance().getString(KEY_UDID, "-1");
+        final String cachedId = SpUtils.getInstance().getString(KEY_UDID, "-1");
         if (uniqueDeviceId.equals(cachedId)) return true;
         int st = uniqueDeviceId.length() - 33;
         String type = uniqueDeviceId.substring(st, st + 1);
@@ -857,7 +857,7 @@ public final class DeviceInfoUtils {
 
     private static String saveUdid(String prefix, String id) {
         udid = getUdid(prefix, id);
-        SPUtils.getInstance().put(KEY_UDID, udid);
+        SpUtils.getInstance().put(KEY_UDID, udid);
         return udid;
     }
 

@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.xzy.utils.common.Utils;
+import com.xzy.utils.UtilsApp;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -21,61 +21,61 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * SP 相关的工具类。
  * 参考 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/src/main/
- * java/com/blankj/utilcode/util/SPUtils.java
+ * java/com/blankj/utilcode/util/SpUtils.java
  *
  * @author xzy
  */
 @SuppressWarnings("all")
 @SuppressLint("ApplySharedPref")
-public final class SPUtils {
+public final class SpUtils {
 
-    private static final Map<String, SPUtils> SP_UTILS_MAP = new HashMap<>();
+    private static final Map<String, SpUtils> SP_UTILS_MAP = new HashMap<>();
     private SharedPreferences sp;
 
     /**
-     * Return the single {@link SPUtils} instance
+     * Return the single {@link SpUtils} instance
      *
-     * @return the single {@link SPUtils} instance
+     * @return the single {@link SpUtils} instance
      */
-    public static SPUtils getInstance() {
+    public static SpUtils getInstance() {
         return getInstance("", MODE_PRIVATE);
     }
 
     /**
-     * Return the single {@link SPUtils} instance
+     * Return the single {@link SpUtils} instance
      *
      * @param mode Operating mode.
-     * @return the single {@link SPUtils} instance
+     * @return the single {@link SpUtils} instance
      */
-    public static SPUtils getInstance(final int mode) {
+    public static SpUtils getInstance(final int mode) {
         return getInstance("", mode);
     }
 
     /**
-     * Return the single {@link SPUtils} instance
+     * Return the single {@link SpUtils} instance
      *
      * @param spName The name of sp.
-     * @return the single {@link SPUtils} instance
+     * @return the single {@link SpUtils} instance
      */
-    public static SPUtils getInstance(String spName) {
+    public static SpUtils getInstance(String spName) {
         return getInstance(spName, MODE_PRIVATE);
     }
 
     /**
-     * Return the single {@link SPUtils} instance
+     * Return the single {@link SpUtils} instance
      *
      * @param spName The name of sp.
      * @param mode   Operating mode.
-     * @return the single {@link SPUtils} instance
+     * @return the single {@link SpUtils} instance
      */
-    public static SPUtils getInstance(String spName, final int mode) {
+    public static SpUtils getInstance(String spName, final int mode) {
         if (isSpace(spName)) spName = "spUtils";
-        SPUtils spUtils = SP_UTILS_MAP.get(spName);
+        SpUtils spUtils = SP_UTILS_MAP.get(spName);
         if (spUtils == null) {
-            synchronized (SPUtils.class) {
+            synchronized (SpUtils.class) {
                 spUtils = SP_UTILS_MAP.get(spName);
                 if (spUtils == null) {
-                    spUtils = new SPUtils(spName, mode);
+                    spUtils = new SpUtils(spName, mode);
                     SP_UTILS_MAP.put(spName, spUtils);
                 }
             }
@@ -83,12 +83,12 @@ public final class SPUtils {
         return spUtils;
     }
 
-    private SPUtils(final String spName) {
-        sp = Utils.getApp().getSharedPreferences(spName, MODE_PRIVATE);
+    private SpUtils(final String spName) {
+        sp = UtilsApp.INSTANCE.getApplicationContext().getSharedPreferences(spName, MODE_PRIVATE);
     }
 
-    private SPUtils(final String spName, final int mode) {
-        sp = Utils.getApp().getSharedPreferences(spName, mode);
+    private SpUtils(final String spName, final int mode) {
+        sp = UtilsApp.INSTANCE.getApplicationContext().getSharedPreferences(spName, mode);
     }
 
     /**
@@ -108,7 +108,7 @@ public final class SPUtils {
      * @param key
      * @param userList 需要存储的 List<Object> 对象
      */
-    public void put(String key, List<User> userList) {
+    public void put(@NonNull String key, @NonNull List<User> userList) {
         SharedPreferences.Editor editor = sp.edit();
         Gson gson = new Gson();
         String json = gson.toJson(userList);
@@ -119,13 +119,42 @@ public final class SPUtils {
     /**
      * 读取保存的 list
      */
-    public List<User> getUserList(String key) {
+    public List<User> getUserList(@NonNull String key) {
         Gson gson = new Gson();
         String json = sp.getString(key, null);
         Type type = new TypeToken<List<User>>() {
         }.getType();
         List<User> arrayList = gson.fromJson(json, type);
         return arrayList;
+    }
+
+    /**
+     * 保存一个对象
+     *
+     * @param key key
+     * @param o   value
+     */
+    public void putObejct(@NonNull String key, @NonNull Object o) {
+        SharedPreferences.Editor editor = sp.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(o);
+        editor.putString(key, json);
+        editor.commit();
+    }
+
+    /**
+     * 读取保存的对象,具体使用时将 User 替换位具体的对象
+     */
+    public Object getObeject(@NonNull String key) {
+        Gson gson = new Gson();
+        String json = sp.getString(key, null);
+        Type type = new TypeToken<User>() {
+        }.getType();
+//        Type type = new TypeToken<List<User>>() {
+//        }.getType();
+//        List<User> arrayList = gson.fromJson(json, type);
+        User user = gson.fromJson(json, type);
+        return user;
     }
 
 

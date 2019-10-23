@@ -17,7 +17,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.xzy.utils.common.Utils;
-import com.xzy.utils.sp.SPUtils;
+import com.xzy.utils.sp.SpUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -93,11 +93,11 @@ public class LanguageUtils {
                                       final String activityClassName,
                                       final boolean isFollowSystem) {
         if (isFollowSystem) {
-            SPUtils.getInstance().put(KEY_LOCALE, VALUE_FOLLOW_SYSTEM);
+            SpUtils.getInstance().put(KEY_LOCALE, VALUE_FOLLOW_SYSTEM);
         } else {
             String localLanguage = locale.getLanguage();
             String localCountry = locale.getCountry();
-            SPUtils.getInstance().put(KEY_LOCALE, localLanguage + "$" + localCountry);
+            SpUtils.getInstance().put(KEY_LOCALE, localLanguage + "$" + localCountry);
         }
 
         updateLanguage(Utils.getApp(), locale);
@@ -114,7 +114,7 @@ public class LanguageUtils {
     }
 
     public static void applyLanguage(@NonNull final Activity activity) {
-        final String spLocale = SPUtils.getInstance().getString(KEY_LOCALE);
+        final String spLocale = SpUtils.getInstance().getString(KEY_LOCALE);
         if (TextUtils.isEmpty(spLocale)) {
             return;
         }

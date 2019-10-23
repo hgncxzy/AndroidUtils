@@ -1,6 +1,8 @@
 package com.xzy.test
+
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.SimpleAdapter
 import androidx.appcompat.app.AppCompatActivity
 import com.xzy.test.activity.ActivityUtilsTest
@@ -9,7 +11,11 @@ import com.xzy.test.constant.Configs
 import com.xzy.test.constant.Per
 import com.xzy.test.xml.XmlUtilsTest
 import com.xzy.utils.activity.ActivityUtils
+import com.xzy.utils.sp.Sp
+import com.xzy.utils.sp.SpUtils
+import com.xzy.utils.sp.User
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_utils_test2.*
 import java.util.*
 
 /**
@@ -23,6 +29,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Per.isGrantExternalRW(this)
         initView()
+
+        // test SpUtils
+        testSpUtils()
+
+    }
+
+    private fun testSpUtils() {
+        val user = User()
+        user.age = 29
+        user.name = "xzy"
+        SpUtils.getInstance().putObejct("user", user)
+        val user1 = SpUtils.getInstance().getObeject("user")
+        Log.i("xzy", user1.toString())
     }
 
     private fun initView() {
