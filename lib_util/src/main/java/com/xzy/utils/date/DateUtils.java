@@ -2,6 +2,7 @@ package com.xzy.utils.date;
 
 import android.annotation.SuppressLint;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -274,4 +275,44 @@ public class DateUtils {
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
         return simpleDateFormat.format(calendar.getTime());
     }
+
+    /**
+     * 将 Date 对象转换为时间戳
+     *
+     * @param date 日期
+     * @return long 类型的时间戳
+     */
+    public static Long dateToTimestamp(Date date) {
+        long time = date.getTime();
+        return time;
+    }
+
+    /**
+     * 将时间戳转换为指定格式的日期字符串 ，例如 yyyy:MM:dd hh:mm:ss
+     *
+     * @param timestamp 时间戳
+     * @param fmt       格式，例如 yyyy:MM:dd hh:mm:ss
+     * @return 日期字符串
+     */
+    public static String timestampToDateStr(Long timestamp, String fmt) {
+        Date date = new Date(timestamp);
+        DateFormat dateFormat = new SimpleDateFormat(fmt);
+        String format = dateFormat.format(date);
+        return format;
+    }
+
+    /**
+     * 将日期字符串转换为时间戳
+     *
+     * @param dateStr 日期字符串
+     * @param fmt     格式 ，例如 yyyy:MM:dd hh:mm:ss
+     * @throws Exception
+     */
+    public static long dateStrToStamp(String dateStr, String fmt) throws Exception {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(fmt);
+        Date date = simpleDateFormat.parse(dateStr);
+        long ts = date.getTime();
+        return ts;
+    }
+
 }
