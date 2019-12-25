@@ -69,7 +69,9 @@ public final class SpUtils {
      * @return the single {@link SpUtils} instance
      */
     public static SpUtils getInstance(String spName, final int mode) {
-        if (isSpace(spName)) spName = "spUtils";
+        if (isSpace(spName)) {
+            spName = "spUtils";
+        }
         SpUtils spUtils = SP_UTILS_MAP.get(spName);
         if (spUtils == null) {
             synchronized (SpUtils.class) {
