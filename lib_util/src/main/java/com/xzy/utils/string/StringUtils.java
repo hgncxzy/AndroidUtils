@@ -1,6 +1,7 @@
 package com.xzy.utils.string;
 
 import android.content.res.Resources;
+import android.widget.TextView;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.StringRes;
@@ -56,6 +57,20 @@ public final class StringUtils {
         }
         return true;
     }
+
+    /**
+     * 检查字符串中是否与待添加的文本有重复内容
+     *
+     * @param textView 文本控件
+     * @param msg      待添加的消息
+     */
+    public static boolean checkRepeat(TextView textView, String msg) {
+        if (textView.getText().toString().contains(msg)) {
+            return msg.contains("找到目标设备");
+        }
+        return false;
+    }
+
 
     /**
      * Return whether string1 is equals to string2.

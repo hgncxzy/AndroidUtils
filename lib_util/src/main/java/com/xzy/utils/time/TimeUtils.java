@@ -754,6 +754,18 @@ public class TimeUtils {
     }
 
     /**
+     * 获得当前时间.
+     *
+     * @param format "MM-dd HH:mm:ss  "
+     * @return String
+     */
+    public static String getCurrTime(String format) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat(format);
+        Date curDate = new Date(System.currentTimeMillis());
+        return formatter.format(curDate);
+    }
+
+    /**
      * Return the current date.
      *
      * @return the current date
@@ -996,9 +1008,10 @@ public class TimeUtils {
     public static String getFriendlyTimeSpanByNow(final long millis) {
         long now = System.currentTimeMillis();
         long span = now - millis;
-        if (span < 0)
+        if (span < 0) {
             // U can read http://www.apihome.cn/api/java/Formatter.html to understand it.
             return String.format("%tc", millis);
+        }
         if (span < 1000) {
             return "刚刚";
         } else if (span < TimeConstants.MIN) {

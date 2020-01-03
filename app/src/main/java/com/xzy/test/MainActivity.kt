@@ -9,6 +9,7 @@ import com.xzy.test.activity.ActivityUtilsTest
 import com.xzy.test.app.AppUtilsActivity
 import com.xzy.test.constant.Configs
 import com.xzy.test.constant.Per
+import com.xzy.test.hex.HexUtilTest
 import com.xzy.test.xml.XmlUtilsTest
 import com.xzy.utils.activity.ActivityUtils
 import com.xzy.utils.sp.Sp
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Per.isGrantExternalRW(this)
         initView()
-
+        HexUtilTest().test()
         // test SpUtils
         testSpUtils()
 
