@@ -13,7 +13,7 @@ import kotlin.experimental.xor
  * Author: xzy
  */
 @Suppress("unused")
-class Functions
+class HexUtil
 
 /**
  * 用于建立十六进制字符的输出的小写字符数组
@@ -282,49 +282,6 @@ fun xOrVerify(bytes: ByteArray): Byte {
         i++
     }
     return xOrValue
-}
-
-/**
- * java 字节转 16 进制字符串.
- *
- * @param b 字节数组
- * @return 16 进制字符串
- */
-@SuppressLint("DefaultLocale")
-@Suppress("unused")
-fun parseBytesToHexString(b: ByteArray): String {
-    val stringBuffer = StringBuilder()
-    for (aB in b) {
-        val temp = aB and 0xFF.toByte()
-        var hex = Integer.toHexString(temp.toInt())
-        if (hex.length == 1) {
-            hex = "0$hex"
-        }
-        stringBuffer.append(hex.toLowerCase()).append(" ")
-    }
-    return stringBuffer.toString().replace("f", "")
-}
-
-/**
- * java 字节转 16 进制字符串.
- *
- * @param b 字节数组
- * @return 16 进制字符串 ps:使用 replace 函数，替换了 16 进制中的 FF 字符串
- */
-@Suppress("unused")
-@SuppressLint("DefaultLocale")
-fun parseBytes2HexString(b: ByteArray): String {
-    val stringBuffer = StringBuilder()
-    for (aB in b) {
-        val temp = aB and 0xFF.toByte()
-        //val temp = aB
-        var hex = Integer.toHexString(temp.toInt())
-        if (hex.length == 1) {
-            hex = "0$hex"
-        }
-        stringBuffer.append(hex.toLowerCase())
-    }
-    return stringBuffer.toString().replace("f", "")
 }
 
 /**
