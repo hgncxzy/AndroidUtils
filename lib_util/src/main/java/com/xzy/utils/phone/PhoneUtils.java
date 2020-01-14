@@ -252,7 +252,9 @@ public class PhoneUtils {
     private static String getMinOne(String s0, String s1) {
         boolean empty0 = TextUtils.isEmpty(s0);
         boolean empty1 = TextUtils.isEmpty(s1);
-        if (empty0 && empty1) return "";
+        if (empty0 && empty1) {
+            return "";
+        }
         if (!empty0 && !empty1) {
             if (s0.compareTo(s1) <= 0) {
                 return s0;
@@ -260,7 +262,9 @@ public class PhoneUtils {
                 return s1;
             }
         }
-        if (!empty0) return s0;
+        if (!empty0) {
+            return s0;
+        }
         return s1;
     }
 
@@ -330,7 +334,9 @@ public class PhoneUtils {
     public static String getSimOperatorByMnc() {
         TelephonyManager tm = getTelephonyManager();
         String operator = tm.getSimOperator();
-        if (operator == null) return "";
+        if (operator == null) {
+            return "";
+        }
         switch (operator) {
             case "46000":
             case "46002":
