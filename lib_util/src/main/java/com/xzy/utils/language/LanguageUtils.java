@@ -10,12 +10,12 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.LocaleList;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-
 import com.xzy.utils.common.Utils;
 import com.xzy.utils.sp.SpUtils;
 
@@ -25,12 +25,13 @@ import java.util.Locale;
 /**
  * 语言工具类。
  * 来自 https://github.com/Blankj/AndroidUtilCode
+ *
  * @author xzy
  */
 @SuppressWarnings("unused")
 public class LanguageUtils {
 
-    private static final String KEY_LOCALE          = "KEY_LOCALE";
+    private static final String KEY_LOCALE = "KEY_LOCALE";
     private static final String VALUE_FOLLOW_SYSTEM = "VALUE_FOLLOW_SYSTEM";
 
     private LanguageUtils() {
@@ -159,14 +160,18 @@ public class LanguageUtils {
     }
 
     private static boolean equals(final CharSequence s1, final CharSequence s2) {
-        if (s1 == s2) return true;
+        if (s1 == s2) {
+            return true;
+        }
         int length;
         if (s1 != null && s2 != null && (length = s1.length()) == s2.length()) {
             if (s1 instanceof String && s2 instanceof String) {
                 return s1.equals(s2);
             } else {
                 for (int i = 0; i < length; i++) {
-                    if (s1.charAt(i) != s2.charAt(i)) return false;
+                    if (s1.charAt(i) != s2.charAt(i)) {
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -185,5 +190,21 @@ public class LanguageUtils {
             return next.activityInfo.name;
         }
         return "no launcher activity";
+    }
+
+    /**
+     * 获取系统默认的语言 ，兼容 Android 7.0
+     *
+     * @return os default language
+     */
+    private static String getDefaultLanguage() {
+        Locale locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = LocaleList.getDefault().get(0);
+        } else {
+            locale = Locale.getDefault();
+        }
+        /* String language = locale.getLanguage() + "-" + locale.getCountry(); */
+        return locale.getLanguage();
     }
 }

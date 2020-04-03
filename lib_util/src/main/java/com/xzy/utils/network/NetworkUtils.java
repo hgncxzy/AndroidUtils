@@ -321,7 +321,7 @@ public class NetworkUtils {
      * @return {@code true}: yes<br>{@code false}: no
      */
     @RequiresPermission(ACCESS_NETWORK_STATE)
-    public static boolean isMobileData() {
+    public static boolean isDebugData() {
         NetworkInfo info = getActiveNetworkInfo();
         return null != info
                 && info.isAvailable()
