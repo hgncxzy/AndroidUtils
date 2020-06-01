@@ -51,6 +51,7 @@ import java.util.Set;
 /**
  * 权限相关工具类
  * 参考 https://github.com/xuexiangjys/XUtil
+ *
  * @author xzy
  */
 @SuppressWarnings("all")
@@ -61,14 +62,14 @@ public final class PermissionUtils {
     private static PermissionUtils sInstance;
 
     private OnRationaleListener mOnRationaleListener;
-    private SimpleCallback      mSimpleCallback;
-    private FullCallback        mFullCallback;
-    private ThemeCallback       mThemeCallback;
-    private Set<String>         mPermissions;
-    private List<String>        mPermissionsRequest;
-    private List<String>        mPermissionsGranted;
-    private List<String>        mPermissionsDenied;
-    private List<String>        mPermissionsDeniedForever;
+    private SimpleCallback mSimpleCallback;
+    private FullCallback mFullCallback;
+    private ThemeCallback mThemeCallback;
+    private Set<String> mPermissions;
+    private List<String> mPermissionsRequest;
+    private List<String> mPermissionsGranted;
+    private List<String> mPermissionsDenied;
+    private List<String> mPermissionsDeniedForever;
 
     /**
      * 获取应用权限
@@ -392,6 +393,7 @@ public final class PermissionUtils {
 
     /**
      * 打开APP的通知权限设置界面
+     *
      * @param activity
      */
     private static void openAppNotificationSettings(Activity activity) {
@@ -404,6 +406,7 @@ public final class PermissionUtils {
 
     /**
      * 通知权限是否打开
+     *
      * @param context
      * @return
      */
@@ -436,6 +439,7 @@ public final class PermissionUtils {
 
     /**
      * 申请android.permission.SYSTEM_ALERT_WINDOW权限
+     *
      * @param activity
      */
     public static void requestSystemAlertWindow(Activity activity) {
@@ -451,6 +455,7 @@ public final class PermissionUtils {
 
     /**
      * 申请android.permission.WRITE_SETTINGS权限
+     *
      * @param activity
      */
     public static void requestWriteSettings(Activity activity) {

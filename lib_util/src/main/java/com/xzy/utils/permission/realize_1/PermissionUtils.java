@@ -180,10 +180,12 @@ public final class PermissionUtils {
     public static boolean hasPermissions(@NonNull Context context,
                                          @NonNull String... permissions) {
         if (isNeedRequest()) {
-            for (String p : permissions)
+            for (String p : permissions) {
                 if (!(ContextCompat.checkSelfPermission(context, p)
-                        == PackageManager.PERMISSION_GRANTED))
+                        == PackageManager.PERMISSION_GRANTED)) {
                     return false;
+                }
+            }
             return true;
         }
         return true;
@@ -221,9 +223,11 @@ public final class PermissionUtils {
     public static boolean hasAlwaysDeniedPermission(@NonNull Activity activity,
                                                     @NonNull String... deniedPermissions) {
         if (isNeedRequest()) {
-            for (String permission : deniedPermissions)
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission))
+            for (String permission : deniedPermissions) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
                     return true;
+                }
+            }
             return false;
         }
         return false;
@@ -245,6 +249,7 @@ public final class PermissionUtils {
                             : message)
                     .setNegativeButton("取消", null)
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(DialogInterface dialog, int which) {
                             openAppSettings();
                         }
