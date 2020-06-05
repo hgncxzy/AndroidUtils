@@ -62,8 +62,8 @@ public final class ToastUtils {
     /**
      * 短时间显示 Toast
      *
-     * @param context  context
-     * @param message  message
+     * @param context context
+     * @param message message
      */
     public static void showShort(Context context, CharSequence message) {
         if (isShow) Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
@@ -92,7 +92,7 @@ public final class ToastUtils {
     /**
      * 长时间显示Toast
      *
-     * @param context context
+     * @param context  context
      * @param stringId 字符串资源 id
      */
     public static void showLong(Context context, int stringId) {
