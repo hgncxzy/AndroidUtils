@@ -1,6 +1,12 @@
 package com.xzy.utils.deviceinfo
 
 import android.Manifest.permission
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorManager
+import android.telephony.TelephonyManager
 
 import androidx.annotation.RequiresPermission
 import java.net.InetAddress
@@ -59,4 +65,29 @@ object DeviceUtils {
         }
         return ""
     }
+
+    /**
+     * 判断是否是真机 -- 通过 bt 的有无或者 bt 的名称判断
+     * */
+    private fun checkIsRealPhone(): Boolean {
+        val bt = BluetoothAdapter.getDefaultAdapter()
+        return if (bt == null) {
+            false
+        } else {
+            val btName = bt.name
+            btName.isNotEmpty()
+        }
+    }
+
+    /**
+     * 判断是否有 SIM 卡，注意获取 android.permission.READ_PHONE_STATE 权限
+     * */
+    @SuppressLint("MissingPermission", "HardwareIds")
+    fun checkHasSimCard(context: Context): Boolean {
+        val tm = context.applicationContext
+                .getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val simSer = tm.simSerialNumber
+        return simSer.isNotEmpty()
+    }
+
 }

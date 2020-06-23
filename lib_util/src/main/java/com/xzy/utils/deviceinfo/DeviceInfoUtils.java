@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -22,10 +23,12 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
+import com.xzy.utils.UtilsApp;
 import com.xzy.utils.common.Utils;
 import com.xzy.utils.shell.ShellUtils;
 import com.xzy.utils.sp.SpUtils;
@@ -158,7 +161,7 @@ public final class DeviceInfoUtils {
      */
     @SuppressLint("MissingPermission")
     public static String getIMEI(Context ctx) {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return "未知,Android 9.0 以后无法获取 IMEI";
         }
         TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Activity.TELEPHONY_SERVICE);
