@@ -2894,6 +2894,94 @@ public class ImageUtils {
             return value;
         }
     }
+
+    /**
+     * 通过BitmapShader实现圆形边框
+     *
+     * @param bitmap
+     * @param outWidth  输出的图片宽度
+     * @param outHeight 输出的图片高度
+     * @param radius    圆角大小
+     * @param boarder   边框宽度
+     */
+    public static Bitmap getRoundBitmapByShader(Bitmap bitmap, int outWidth, int outHeight, int radius, int boarder) {
+        if (bitmap == null) {
+            return null;
+        }
+        int height = bitmap.getHeight();
+        int width = bitmap.getWidth();
+
+        float widthScale = outWidth * 1f / width;
+        float heightScale = outHeight * 1f / height;
+
+        Matrix matrix = new Matrix();
+        matrix.setScale(widthScale, heightScale);
+        //创建输出的bitmap
+        Bitmap desBitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
+        //创建canvas并传入desBitmap，这样绘制的内容都会在desBitmap上
+        Canvas canvas = new Canvas(desBitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        //创建着色器
+        BitmapShader bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        //给着色器配置matrix
+        bitmapShader.setLocalMatrix(matrix);
+        paint.setShader(bitmapShader);
+        //创建矩形区域并且预留出border
+        RectF rect = new RectF(boarder, boarder, outWidth - boarder, outHeight - boarder);
+        //把传入的bitmap绘制到圆角矩形区域内
+        canvas.drawRoundRect(rect, radius, radius, paint);
+
+        if (boarder > 0) {
+            //绘制boarder
+            Paint boarderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            boarderPaint.setColor(Color.GREEN);
+            boarderPaint.setStyle(Paint.Style.STROKE);
+            boarderPaint.setStrokeWidth(boarder);
+            canvas.drawRoundRect(rect, radius, radius, boarderPaint);
+        }
+        return desBitmap;
+    }
+
+    /**
+     * 通过BitmapShader实现圆形边框
+     *
+     * @param bitmap
+     * @param outWidth  输出的图片宽度
+     * @param outHeight 输出的图片高度
+     * @param boarder   边框大小
+     */
+    public static Bitmap getCircleBitmapByShader(Bitmap bitmap, int outWidth, int outHeight, int boarder) {
+        int radius;
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float widthScale = outWidth * 1f / width;
+        float heightScale = outHeight * 1f / height;
+
+        Bitmap desBitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
+        if (outHeight > outWidth) {
+            radius = outWidth / 2;
+        } else {
+            radius = outHeight / 2;
+        }
+        //创建canvas
+        Canvas canvas = new Canvas(desBitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        BitmapShader bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        Matrix matrix = new Matrix();
+        matrix.setScale(widthScale, heightScale);
+        bitmapShader.setLocalMatrix(matrix);
+        paint.setShader(bitmapShader);
+        canvas.drawCircle(outWidth / 2, outHeight / 2, radius - boarder, paint);
+        if (boarder > 0) {
+            //绘制boarder
+            Paint boarderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            boarderPaint.setColor(Color.GREEN);
+            boarderPaint.setStyle(Paint.Style.STROKE);
+            boarderPaint.setStrokeWidth(boarder);
+            canvas.drawCircle(outWidth / 2, outHeight / 2, radius - boarder, boarderPaint);
+        }
+        return desBitmap;
+    }
 }
 
 
