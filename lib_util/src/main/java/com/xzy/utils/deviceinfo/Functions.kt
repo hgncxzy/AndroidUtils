@@ -4,11 +4,15 @@ import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.net.Uri
+import android.os.Build
 import android.telephony.TelephonyManager
 
 import androidx.annotation.RequiresPermission
+import com.xzy.utils.appctx.appCtx
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
@@ -89,5 +93,33 @@ object DeviceUtils {
         val simSer = tm.simSerialNumber
         return simSer.isNotEmpty()
     }
+
+
+    // 是否是模拟器
+    val isEmulator: Boolean
+        get() {
+            val url = "tel:" + "123456"
+            val intent = Intent()
+            intent.data = Uri.parse(url)
+            intent.action = Intent.ACTION_DIAL
+            // 是否可以处理跳转到拨号的 Intent
+            val canResolveIntent = intent.resolveActivity(appCtx.packageManager) != null
+            return (
+                    Build.FINGERPRINT.startsWith("generic") ||
+                            Build.FINGERPRINT.toLowerCase(Locale.ROOT).contains("vbox") ||
+                            Build.FINGERPRINT.toLowerCase(Locale.ROOT).contains("test-keys") ||
+                            Build.MODEL.contains("google_sdk") ||
+                            Build.MODEL.contains("Emulator") ||
+                            Build.SERIAL.equals("unknown", ignoreCase = true) ||
+                            Build.SERIAL.equals("android", ignoreCase = true) ||
+                            Build.MODEL.contains("Android SDK built for x86") ||
+                            Build.MANUFACTURER.contains("Genymotion") ||
+                            Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
+                            "google_sdk" == Build.PRODUCT ||
+                            (appCtx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).networkOperatorName.toLowerCase(Locale.ROOT) == "android" ||
+                            !canResolveIntent
+                    )
+        }
+
 
 }
